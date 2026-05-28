@@ -172,6 +172,47 @@
             </form>
         </div>
     </main>
+<script>
+    // 1. Initialize Supabase Connection
+    const SUPABASE_URL = "https://pyjejtxzttyqpafzjzhc.supabase.com"; 
+    const SUPABASE_KEY = "sb_publishable_vT9PR_BQqZk9F6E4wbd2kg_uIyW8ouJ";
+    const supabase = @supabase/supabase-js.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // 2. Capture Form Data and Send to DB
+    async function submitPropertyForm() {
+        // Collect form elements safely
+        const purpose = document.querySelector('input[name="purpose"]:checked').value;
+        const bhk_type = document.getElementById('bhk-select').value;
+        const furnishing = document.getElementById('furnishing-select').value;
+        const area_sqft = document.getElementById('area-input').value;
+        const total_floors = document.getElementById('floors-input').value;
+        const city = document.getElementById('city-input').value;
+        const locality = document.getElementById('locality-input').value;
+        const society_name = document.getElementById('society-input').value;
+        const price = document.getElementById('price-input').value;
+        const maintenance = document.getElementById('maintenance-input').value || 0;
+
+        // Validation Check
+        if(!bhk_type || !area_sqft || !city || !locality || !society_name || !price) {
+            alert("Please fill in all fields marked with an asterisk (*)");
+            return;
+        }
+
+        // Insert row into Supabase
+        const { data, error } = await supabase
+            .from('properties')
+            .insert([
+                { purpose, bhk_type, furnishing, area_sqft, total_floors, city, locality, society_name, price, maintenance }
+            ]);
+
+        if (error) {
+            console.error("Database Error:", error);
+            alert("Oops! Something went wrong saving your listing: " + error.message);
+        } else {
+            alert("Success! Your property is listed on bhk.com live!");
+            window.location.href = "index.html"; // Redirect back home
+        }
+    }
+</script>
 </body>
 </html>
