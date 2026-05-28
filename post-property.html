@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Property | bhk.com - Zero Brokerage Marketplace</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+
+    <!-- NAVIGATION BAR -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="bg-orange-600 text-white p-2 rounded-lg">
+                    <i class="fa-solid fa-building-user text-xl"></i>
+                </div>
+                <a href="index.html" class="text-2xl font-bold tracking-tight text-slate-900">bhk<span class="text-orange-600">.com</span></a>
+            </div>
+            <nav class="hidden md:flex items-center gap-8 font-medium text-slate-600">
+                <a href="index.html" class="hover:text-orange-700 transition">Back to Home</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- FORM CONTAINER -->
+    <main class="max-w-3xl mx-auto px-4 py-12">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+            
+            <!-- Header Banner -->
+            <div class="bg-slate-900 p-8 text-white text-center relative">
+                <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                <h1 class="text-3xl font-bold relative z-10">Post Your Property for <span class="text-orange-500">Free</span></h1>
+                <p class="text-slate-400 mt-2 text-sm relative z-10">Takes less than 5 minutes. Find verified buyers & tenants without brokerage.</p>
+            </div>
+
+            <!-- Form Start -->
+            <form class="p-6 sm:p-10 space-y-8">
+                
+                <!-- SECTION 1: Transaction & Listing Type -->
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2 mb-4">
+                        <span class="bg-orange-100 text-orange-700 w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+                        Listing Intention
+                    </h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="border-2 border-orange-500 bg-orange-50/30 p-4 rounded-xl flex items-center gap-3 cursor-pointer transition hover:border-orange-500">
+                            <input type="radio" name="purpose" value="sale" checked class="accent-orange-600 w-4 h-4">
+                            <div>
+                                <p class="font-bold text-slate-900 text-sm">Sell Property</p>
+                                <p class="text-xs text-slate-500">Find a direct buyer</p>
+                            </div>
+                        </label>
+                        <label class="border-2 border-slate-200 p-4 rounded-xl flex items-center gap-3 cursor-pointer transition hover:border-orange-300">
+                            <input type="radio" name="purpose" value="rent" class="accent-orange-600 w-4 h-4">
+                            <div>
+                                <p class="font-bold text-slate-900 text-sm">Rent Out</p>
+                                <p class="text-xs text-slate-500">Find premium tenants</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: Property Configuration -->
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2 mb-4">
+                        <span class="bg-orange-100 text-orange-700 w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+                        Property Details
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">BHK Configuration *</label>
+                            <select required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition">
+                                <option value="">Select BHK Type</option>
+                                <option value="1">1 BHK</option>
+                                <option value="2">2 BHK</option>
+                                <option value="3">3 BHK</option>
+                                <option value="4">4+ BHK</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Furnishing Status</label>
+                            <select class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition">
+                                <option value="unfurnished">Unfurnished</option>
+                                <option value="semi-furnished">Semi-Furnished</option>
+                                <option value="fully-furnished">Fully Furnished</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Super Built-up Area (sq.ft.) *</label>
+                            <input type="number" required placeholder="e.g., 1250" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Total Floors in Building</label>
+                            <input type="number" placeholder="e.g., 14" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: Location -->
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2 mb-4">
+                        <span class="bg-orange-100 text-orange-700 w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
+                        Locality & Location
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">City *</label>
+                                <input type="text" required placeholder="e.g., Mumbai, Bangalore" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Locality / Sector *</label>
+                                <input type="text" required placeholder="e.g., Andheri West, Whitefield" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Society Name *</label>
+                            <input type="text" required placeholder="e.g., DLF Phase 5, Godrej Woods" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: Expected Price -->
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2 mb-4">
+                        <span class="bg-orange-100 text-orange-700 w-6 h-6 rounded-full flex items-center justify-center text-xs">4</span>
+                        Financials
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Expected Amount (₹) *</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-3.5 text-slate-400 text-sm">₹</span>
+                                <input type="number" required placeholder="e.g., 7500000" class="w-full pl-8 pr-20 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition">
+                                <span class="absolute right-4 top-3 text-xs font-bold bg-slate-200 text-slate-700 px-2 py-1 rounded">INR</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1">Enter total amount (e.g. 8500000 for 85 Lakhs)</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Maintenance Charges (Monthly)</label>
+                            <input type="number" placeholder="e.g., 3000" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 5: Photos Media -->
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2 mb-4">
+                        <span class="bg-orange-100 text-orange-700 w-6 h-6 rounded-full flex items-center justify-center text-xs">5</span>
+                        Upload Property Photos
+                    </h2>
+                    <div class="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center bg-slate-50 hover:bg-slate-100/50 transition cursor-pointer group">
+                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 group-hover:text-orange-500 transition mb-3"></i>
+                        <p class="text-sm font-bold text-slate-700">Drag & drop your images here, or <span class="text-orange-600">Browse</span></p>
+                        <p class="text-xs text-slate-400 mt-1">Upload up to 10 photos (Living room, Bedroom, Kitchen, etc.)</p>
+                        <input type="file" multiple class="hidden">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button type="button" onclick="alert('Awesome! In the next step, we will connect this database to save your property.')" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-xl transition text-base shadow-lg shadow-orange-600/10 cursor-pointer">
+                        Submit Listing & Make Live
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>
