@@ -149,87 +149,124 @@
                 </div>
 
                 <!-- SECTION 5: Photos Media -->
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2 mb-4">
-                        <span class="bg-orange-100 text-orange-700 w-6 h-6 rounded-full flex items-center justify-center text-xs">5</span>
-                        Upload Property Photos
-                    </h2>
-                    <div class="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center bg-slate-50 hover:bg-slate-100/50 transition cursor-pointer group">
-                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 group-hover:text-orange-500 transition mb-3"></i>
-                        <p class="text-sm font-bold text-slate-700">Drag & drop your images here, or <span class="text-orange-600">Browse</span></p>
-                        <p class="text-xs text-slate-400 mt-1">Upload up to 10 photos (Living room, Bedroom, Kitchen, etc.)</p>
-                        <input type="file" multiple class="hidden">
-                    </div>
-                </div>
+                <!-- REPLACE THE EXISTING PHOTOS MEDIA SECTION WITH THIS -->
+<div>
+    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2 mb-4">
+        <span class="bg-orange-100 text-orange-700 w-6 h-6 rounded-full flex items-center justify-center text-xs">5</span>
+        Upload Property Photos
+    </h2>
+    <div class="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center bg-slate-50 hover:bg-slate-100/50 transition cursor-pointer group relative">
+        <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 group-hover:text-orange-500 transition mb-3"></i>
+        <p class="text-sm font-bold text-slate-700">Click to upload your images</p>
+        <p class="text-xs text-slate-400 mt-1">Upload up to 10 photos</p>
+        <!-- Added ID and removed hidden class for easier testing -->
+        <input id="photo-upload" type="file" multiple accept="image/*" class="mt-4 block mx-auto text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100">
+    </div>
+</div>
 
-                <!-- Submit Button -->
-                <div class="pt-4">
-                    <button type="button" onclick="submitPropertyForm()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-xl transition text-base shadow-lg shadow-orange-600/10 cursor-pointer">
-                        Submit Listing & Make Live
-                    </button>
-                </div>
+<!-- Submit Button -->
+<div class="pt-4">
+    <button type="button" onclick="submitPropertyForm()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-xl transition text-base shadow-lg shadow-orange-600/10 cursor-pointer">
+        Submit Listing & Make Live
+    </button>
+</div>
 
-            </form>
-        </div>
-    </main>
+</form>
+</div>
+</main>
 
-    <script>
-        // 1. Initialize Supabase Connection
-        const SUPABASE_URL = "https://pyjejtxzttyqpafzjzhc.supabase.com"; 
-        const SUPABASE_KEY = "sb_publishable_vT9PR_BQqZk9F6E4wbd2kg_uIyW8ouJ";
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script>
+// 1. Initialize Supabase Connection
+const SUPABASE_URL = "https://pyjejtxzttyqpafzjzhc.supabase.com"; 
+const SUPABASE_KEY = "sb_publishable_vT9PR_BQqZk9F6E4wbd2kg_uIyW8ouJ";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 2. Capture Form Data and Send to DB
-        async function submitPropertyForm() {
-            try {
-                // Collect form elements safely
-                const purpose = document.querySelector('input[name="purpose"]:checked').value;
-                const bhk_type = document.getElementById('bhk-select').value;
-                const furnishing = document.getElementById('furnishing-select').value;
-                const area_sqft = document.getElementById('area-input').value;
-                const total_floors = document.getElementById('floors-input').value || null;
-                const city = document.getElementById('city-input').value;
-                const locality = document.getElementById('locality-input').value;
-                const society_name = document.getElementById('society-input').value;
-                const price = document.getElementById('price-input').value;
-                const maintenance = document.getElementById('maintenance-input').value || 0;
+// 2. Capture Form Data and Send to DB
+async function submitPropertyForm() {
+    try {
+        // Collect form elements safely
+        const purpose = document.querySelector('input[name="purpose"]:checked').value;
+        const bhk_type = document.getElementById('bhk-select').value;
+        const furnishing = document.getElementById('furnishing-select').value;
+        const area_sqft = document.getElementById('area-input').value;
+        const total_floors = document.getElementById('floors-input').value || null;
+        const city = document.getElementById('city-input').value;
+        const locality = document.getElementById('locality-input').value;
+        const society_name = document.getElementById('society-input').value;
+        const price = document.getElementById('price-input').value;
+        const maintenance = document.getElementById('maintenance-input').value || 0;
+        
+        // Get files from input
+        const fileInput = document.getElementById('photo-upload');
+        const files = fileInput.files;
 
-                // Validation Check
-                if(!bhk_type || !area_sqft || !city || !locality || !society_name || !price) {
-                    alert("Please fill in all fields marked with an asterisk (*)");
-                    return;
+        // Validation Check
+        if(!bhk_type || !area_sqft || !city || !locality || !society_name || !price) {
+            alert("Please fill in all fields marked with an asterisk (*)");
+            return;
+        }
+
+        let uploadedUrls = [];
+
+        // Handle Image Uploads first if files exist
+        if (files.length > 0) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                // Create a unique filename to prevent overwriting
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${i}.${fileExt}`;
+                const filePath = `properties/${fileName}`;
+
+                // Upload file to Supabase Storage Bucket
+                const { data: storageData, error: storageError } = await supabase.storage
+                    .from('property-images')
+                    .upload(filePath, file);
+
+                if (storageError) {
+                    throw new Error(`Image upload failed: ${storageError.message}`);
                 }
 
-                // Insert row into Supabase
-                const { data, error } = await supabase
-                    .from('properties')
-                    .insert([
-                        { 
-                            purpose: purpose, 
-                            bhk_type: bhk_type, 
-                            furnishing: furnishing, 
-                            area_sqft: parseFloat(area_sqft), 
-                            total_floors: total_floors ? parseInt(total_floors) : null, 
-                            city: city, 
-                            locality: locality, 
-                            society_name: society_name, 
-                            price: parseFloat(price), 
-                            maintenance: parseFloat(maintenance) 
-                        }
-                    ]);
+                // Get Public URL of the uploaded image
+                const { data: urlData } = supabase.storage
+                    .from('property-images')
+                    .getPublicUrl(filePath);
 
-                if (error) {
-                    throw error;
-                }
-
-                alert("Success! Your property is listed on bhk.com live!");
-                window.location.href = "index.html"; // Redirect back home
-
-            } catch (err) {
-                console.error("Database Error:", err);
-                alert("Oops! Something went wrong saving your listing: " + (err.message || err));
+                uploadedUrls.push(urlData.publicUrl);
             }
         }
-    </script>
+
+        // Insert row into Supabase including the array of image URLs
+        // Note: Make sure your 'properties' table has an 'images' column (jsonb or text array type) if you want to save URLs
+        const { data, error } = await supabase
+            .from('properties')
+            .insert([
+                { 
+                    purpose: purpose, 
+                    bhk_type: bhk_type, 
+                    furnishing: furnishing, 
+                    area_sqft: parseFloat(area_sqft), 
+                    total_floors: total_floors ? parseInt(total_floors) : null, 
+                    city: city, 
+                    locality: locality, 
+                    society_name: society_name, 
+                    price: parseFloat(price), 
+                    maintenance: parseFloat(maintenance),
+                    images: uploadedUrls // saves image links to your table database row
+                }
+            ]);
+
+        if (error) {
+            throw error;
+        }
+
+        alert("Success! Your property and images are listed live!");
+        window.location.href = "index.html"; 
+
+    } catch (err) {
+        console.error("Error encountered:", err);
+        alert("Oops! Something went wrong: " + (err.message || err));
+    }
+}
+</script>
 </body>
 </html>
