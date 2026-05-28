@@ -162,10 +162,10 @@
     </main>
 
     <script>
-        // Initialize Supabase Connection (Declared cleanly here only)
-        const SUPABASE_URL = "https://pyjejtxzttyqpafzjzhc.supabase.com"; 
-        const SUPABASE_KEY = "sb_publishable_vT9PR_BQqZk9F6E4wbd2kg_uIyW8ouJ";
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Renamed variable to avoid conflicts with any duplicate script declarations
+        const SUPABASE_PROJECT_URL = "https://pyjejtxzttyqpafzjzhc.supabase.com"; 
+        const SUPABASE_ANON_KEY = "sb_publishable_vT9PR_BQqZk9F6E4wbd2kg_uIyW8ouJ";
+        const supabaseClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY);
 
         // Capture Form Data and Send to DB
         async function submitPropertyForm() {
@@ -203,7 +203,7 @@
                         const filePath = `properties/${fileName}`;
 
                         // Upload file to Supabase Storage Bucket
-                        const { data: storageData, error: storageError } = await supabase.storage
+                        const { data: storageData, error: storageError } = await supabaseClient.storage
                             .from('property-images')
                             .upload(filePath, file);
 
@@ -212,7 +212,7 @@
                         }
 
                         // Get Public URL of the uploaded image
-                        const { data: urlData } = supabase.storage
+                        const { data: urlData } = supabaseClient.storage
                             .from('property-images')
                             .getPublicUrl(filePath);
 
@@ -221,7 +221,7 @@
                 }
 
                 // Insert row into Supabase including the array of image URLs
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('properties')
                     .insert([
                         { 
