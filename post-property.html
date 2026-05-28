@@ -152,7 +152,7 @@
                 </div>
 
                 <div class="pt-4">
-                    <button type="button" onclick="submitPropertyForm()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-xl transition text-base shadow-lg shadow-orange-600/10 cursor-pointer">
+                    <button type="button" onclick="handlePropertySubmissionForm()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-xl transition text-base shadow-lg shadow-orange-600/10 cursor-pointer">
                         Submit Listing & Make Live
                     </button>
                 </div>
@@ -162,13 +162,13 @@
     </main>
 
     <script>
-        // Renamed variable to avoid conflicts with any duplicate script declarations
-        const SUPABASE_PROJECT_URL = "https://pyjejtxzttyqpafzjzhc.supabase.com"; 
-        const SUPABASE_ANON_KEY = "sb_publishable_vT9PR_BQqZk9F6E4wbd2kg_uIyW8ouJ";
-        const supabaseClient = window.supabase.createClient(SUPABASE_PROJECT_URL, SUPABASE_ANON_KEY);
+        // Completely renamed initialization variables to avoid global conflicts
+        const NEW_PROJECT_URL = "https://pyjejtxzttyqpafzjzhc.supabase.com"; 
+        const NEW_ANON_KEY = "sb_publishable_vT9PR_BQqZk9F6E4wbd2kg_uIyW8ouJ";
+        const customSupabaseInstance = window.supabase.createClient(NEW_PROJECT_URL, NEW_ANON_KEY);
 
-        // Capture Form Data and Send to DB
-        async function submitPropertyForm() {
+        // Completely unique handler name to bypass any scope compilation skips
+        async function handlePropertySubmissionForm() {
             try {
                 // Collect form elements safely
                 const purpose = document.querySelector('input[name="purpose"]:checked').value;
@@ -203,7 +203,7 @@
                         const filePath = `properties/${fileName}`;
 
                         // Upload file to Supabase Storage Bucket
-                        const { data: storageData, error: storageError } = await supabaseClient.storage
+                        const { data: storageData, error: storageError } = await customSupabaseInstance.storage
                             .from('property-images')
                             .upload(filePath, file);
 
@@ -212,7 +212,7 @@
                         }
 
                         // Get Public URL of the uploaded image
-                        const { data: urlData } = supabaseClient.storage
+                        const { data: urlData } = customSupabaseInstance.storage
                             .from('property-images')
                             .getPublicUrl(filePath);
 
@@ -221,7 +221,7 @@
                 }
 
                 // Insert row into Supabase including the array of image URLs
-                const { data, error } = await supabaseClient
+                const { data, error } = await customSupabaseInstance
                     .from('properties')
                     .insert([
                         { 
