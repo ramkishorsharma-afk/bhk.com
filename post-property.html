@@ -565,7 +565,7 @@
         <div class="upload-zone p-8 text-center cursor-pointer mb-4" id="upload-zone" onclick="document.getElementById('photo-upload').click()" ondragover="handleDrag(event,true)" ondragleave="handleDrag(event,false)" ondrop="handleDrop(event)">
           <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-300 mb-3" aria-hidden="true"></i>
           <p class="font-semibold text-slate-700">Click to upload or drag &amp; drop photos</p>
-          <p class="text-xs text-slate-400 mt-1">JPG, PNG or WebP · Max 5MB each · Up to 10 photos</p>
+          <p class="text-xs text-slate-400 mt-1">JPG, PNG or WebP · Max 2MB each · Up to 10 photos</p>
           <input id="photo-upload" type="file" multiple accept="image/*" class="hidden" onchange="handlePhotos(this.files)">
         </div>
         <div id="upload-bar"><div id="upload-bar-fill"></div></div>
@@ -839,7 +839,7 @@ document.getElementById('description').addEventListener('input', function() {
 function handlePhotos(files) {
   const remaining = 10 - photoFiles.length;
   const toAdd = Array.from(files).slice(0, remaining);
-  toAdd.forEach(f => { if (f.size <= 5 * 1024 * 1024) photoFiles.push(f); });
+  toAdd.forEach(f => { if (f.size <= 2 * 1024 * 1024) photoFiles.push(f); else showError(f.name + ' is too large. Max 2MB per photo.'); });
   renderPreviews();
 }
 
@@ -889,7 +889,7 @@ async function handleSubmit() {
     const purpose   = document.querySelector('input[name="purpose"]:checked').value;
     const prop_type = document.querySelector('input[name="prop_type"]:checked')?.value || 'apartment';
 
-    /* Upload photos */
+    /* Convert photos to Base64 and store in DB (avoids Supabase Storage CORS on GitHub Pages) */
     let imageUrls = [];
     if (photoFiles.length > 0) {
       const bar = document.getElementById('upload-bar');
@@ -897,13 +897,14 @@ async function handleSubmit() {
       bar.style.display = 'block';
       for (let i = 0; i < photoFiles.length; i++) {
         const f = photoFiles[i];
-        const ext = f.name.split('.').pop();
-        const path = `properties/${Date.now()}_${i}.${ext}`;
-        const { data: sd, error: se } = await db.storage.from('property-images').upload(path, f);
-        if (se) throw new Error('Image upload failed: ' + se.message);
-        const { data: ud } = db.storage.from('property-images').getPublicUrl(path);
-        imageUrls.push(ud.publicUrl);
-        fill.style.width = Math.round(((i+1)/photoFiles.length)*100) + '%';
+        const b64 = await new Promise((res, rej) => {
+          const reader = new FileReader();
+          reader.onload  = () => res(reader.result); // data:image/jpeg;base64,...
+          reader.onerror = () => rej(new Error('Failed to read file: ' + f.name));
+          reader.readAsDataURL(f);
+        });
+        imageUrls.push(b64);
+        fill.style.width = Math.round(((i + 1) / photoFiles.length) * 100) + '%';
       }
     }
 
