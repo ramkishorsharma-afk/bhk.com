@@ -1,269 +1,1236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bhk.com | Buy & Rent Flats in India Directly from Owners</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>bhk.com | Buy &amp; Rent Flats in India – Zero Brokerage, Direct from Owners</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Buy, sell or rent flats and apartments directly from owners across India. Zero brokerage. Verified listings in Mumbai, Delhi NCR, Bengaluru, Hyderabad, Pune and more. RERA compliant.">
+  <meta name="keywords" content="buy flat India, rent flat India, zero brokerage flat, owner listings, 2 BHK flat Mumbai, flat for sale Bengaluru, no broker flat Delhi">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="bhk.com">
+  <link rel="canonical" href="https://bhk.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://bhk.com/">
+  <meta property="og:title" content="bhk.com | Buy &amp; Rent Flats – Zero Brokerage, Direct from Owners">
+  <meta property="og:description" content="Find verified owner listings for flats across India. No agent fees. RERA compliant. Trusted by lakhs of buyers and owners.">
+  <meta property="og:image" content="https://bhk.com/og-image.jpg">
+  <meta property="og:site_name" content="bhk.com">
+  <meta property="og:locale" content="en_IN">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="bhk.com | Zero Brokerage Flats in India">
+  <meta name="twitter:description" content="Buy or rent flats directly from owners. Zero brokerage. Verified listings across India.">
+  <meta name="twitter:image" content="https://bhk.com/og-image.jpg">
+
+  <!-- Schema: WebSite -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "bhk.com",
+    "url": "https://bhk.com",
+    "description": "India's zero-brokerage residential property marketplace. Buy, sell and rent flats directly from owners.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://bhk.com/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- Schema: FAQ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is bhk.com really zero brokerage?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. bhk.com connects buyers and renters directly with property owners. No broker or agent is involved, so you pay zero brokerage." }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I post my property for free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Click 'Post Property' on any page, fill in your property details, upload photos and submit. Listing is completely free for owners." }
+      },
+      {
+        "@type": "Question",
+        "name": "Are the listings RERA approved?",
+        "acceptedAnswer": { "@type": "Answer", "text": "We verify RERA registration for new projects. Each RERA-approved listing is clearly marked. Always ask the owner for the RERA ID before transacting." }
+      },
+      {
+        "@type": "Question",
+        "name": "Which cities are covered on bhk.com?",
+        "acceptedAnswer": { "@type": "Answer", "text": "bhk.com currently covers Mumbai, Delhi NCR, Bengaluru, Hyderabad, Pune, Chennai, Ahmedabad and Kolkata with more cities being added." }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+  <style>
+    :root {
+      --orange: #EA580C;
+      --orange-light: #FFF7ED;
+      --orange-dark: #C2410C;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    /* Stat counter animation */
+    @keyframes countUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .stat-num { animation: countUp 0.6s ease forwards; }
+
+    /* Card hover lift */
+    .prop-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+    .prop-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+
+    /* Calc tabs */
+    .calc-tab { transition: all 0.15s; }
+    .calc-tab.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+
+    /* Trend sparkline */
+    .spark { display: inline-flex; align-items: flex-end; gap: 2px; height: 24px; }
+    .spark span { width: 5px; border-radius: 1px 1px 0 0; background: var(--orange); opacity: 0.7; display: block; }
+
+    /* Progress bar */
+    .pbar { height: 8px; border-radius: 99px; background: #E2E8F0; overflow: hidden; }
+    .pbar-fill { height: 100%; border-radius: 99px; transition: width 0.4s ease; }
+
+    /* Mobile menu */
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: block; }
+
+    /* Scroll indicator */
+    #scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--orange); z-index: 9999; width: 0%; transition: width 0.1s; }
+
+    /* Range slider accent */
+    input[type=range]::-webkit-slider-thumb { background: var(--orange); }
+    input[type=range]::-webkit-slider-runnable-track { background: #E2E8F0; }
+    input[type=range] { accent-color: var(--orange); }
+  </style>
 </head>
+
 <body class="bg-slate-50 text-slate-800 font-sans">
 
-    <!-- NAVIGATION BAR -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <!-- Logo Updated to bhk.com -->
-            <div class="flex items-center gap-2">
-                <div class="bg-orange-600 text-white p-2 rounded-lg">
-                    <i class="fa-solid fa-building-user text-xl"></i>
-                </div>
-                <span class="text-2xl font-bold tracking-tight text-slate-900">bhk<span class="text-orange-600">.com</span></span>
-            </div>
-            
-            <!-- Fixed Top 3 Navigation Options Links -->
-            <nav class="hidden md:flex items-center gap-8 font-medium text-slate-600">
-                <a href="#featured-section" class="text-orange-600 hover:text-orange-700 transition">Buy Flats</a>
-                <a href="#featured-section" onclick="switchTab('rent')" class="hover:text-orange-700 transition">Rentals</a>
-                <a href="post-property.html" class="hover:text-orange-700 transition">Post Property (Free)</a>
-            </nav>
+<!-- Scroll progress bar -->
+<div id="scroll-progress"></div>
 
-            <!-- CTA Button -->
-            <div class="flex items-center gap-4">
-                <a href="#" class="hidden sm:block text-slate-600 hover:text-slate-900 font-medium">Sign In</a>
-                <a href="post-property.html" class="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-xl font-medium transition shadow-md shadow-orange-100">
-                    Post Your Property
-                </a>
-            </div>
+<!-- ============================================================
+     NAVIGATION
+============================================================ -->
+<header class="bg-white shadow-sm sticky top-0 z-50" role="banner">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-2" aria-label="bhk.com home">
+      <div class="bg-orange-600 text-white p-2 rounded-lg">
+        <i class="fa-solid fa-building-user text-xl" aria-hidden="true"></i>
+      </div>
+      <span class="text-2xl font-bold tracking-tight text-slate-900">bhk<span class="text-orange-600">.com</span></span>
+    </a>
+
+    <!-- Desktop Nav -->
+    <nav class="hidden md:flex items-center gap-8 font-medium text-slate-600" aria-label="Main navigation">
+      <a href="#listings" class="hover:text-orange-600 transition">Buy Flats</a>
+      <a href="#listings" onclick="switchTab('rent')" class="hover:text-orange-600 transition">Rentals</a>
+      <a href="#calculator" class="hover:text-orange-600 transition">EMI Calculator</a>
+      <a href="#trends" class="hover:text-orange-600 transition">Market Trends</a>
+      <a href="#cities" class="hover:text-orange-600 transition">Cities</a>
+      <a href="post-property.html" class="hover:text-orange-600 transition">Post Property</a>
+    </nav>
+
+    <!-- CTA -->
+    <div class="flex items-center gap-4">
+      <a href="#" class="hidden sm:block text-slate-600 hover:text-slate-900 font-medium">Sign In</a>
+      <a href="post-property.html" class="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-xl font-medium transition shadow-md shadow-orange-100">
+        Post Free
+      </a>
+      <!-- Hamburger -->
+      <button class="md:hidden p-2 rounded-lg hover:bg-slate-100 transition" onclick="toggleMenu()" aria-label="Toggle menu" aria-expanded="false" id="hamburger">
+        <i class="fa-solid fa-bars text-slate-700" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="md:hidden bg-white border-t border-slate-100 px-4 py-4 space-y-3">
+    <a href="#listings" class="block font-medium text-slate-700 py-2 hover:text-orange-600" onclick="toggleMenu()">Buy Flats</a>
+    <a href="#listings" class="block font-medium text-slate-700 py-2 hover:text-orange-600" onclick="switchTab('rent');toggleMenu()">Rentals</a>
+    <a href="#calculator" class="block font-medium text-slate-700 py-2 hover:text-orange-600" onclick="toggleMenu()">EMI Calculator</a>
+    <a href="#trends" class="block font-medium text-slate-700 py-2 hover:text-orange-600" onclick="toggleMenu()">Market Trends</a>
+    <a href="#cities" class="block font-medium text-slate-700 py-2 hover:text-orange-600" onclick="toggleMenu()">Cities</a>
+    <a href="post-property.html" class="block font-medium text-slate-700 py-2 hover:text-orange-600">Post Property (Free)</a>
+  </div>
+</header>
+
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="relative bg-slate-950 py-20 lg:py-28 overflow-hidden" aria-labelledby="hero-heading">
+  <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px]" aria-hidden="true"></div>
+  <div class="absolute -top-40 -right-40 w-96 h-96 bg-orange-500 rounded-full blur-3xl opacity-20" aria-hidden="true"></div>
+  <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-10" aria-hidden="true"></div>
+
+  <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <span class="inline-block text-orange-400 font-semibold tracking-wider uppercase text-xs bg-orange-950/60 px-3 py-1 rounded-full border border-orange-900/50 mb-4">
+      100% Verified Owner Listings · Zero Brokerage
+    </span>
+    <h1 id="hero-heading" class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
+      Find Flats in India.<br><span class="text-orange-500">No Broker. No Commission.</span>
+    </h1>
+    <p class="mt-4 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto">
+      Buy, sell, or rent residential apartments directly from verified owners across India's top cities. Save lakhs in brokerage — guaranteed.
+    </p>
+
+    <!-- Search Box -->
+    <div class="mt-10 bg-white p-4 sm:p-6 rounded-2xl shadow-2xl max-w-4xl mx-auto text-left border border-slate-100">
+      <!-- Tabs -->
+      <div class="flex gap-2 border-b border-slate-100 pb-4 mb-5" role="tablist" aria-label="Property search type">
+        <button id="tab-buy" role="tab" aria-selected="true" onclick="switchTab('buy')"
+          class="bg-orange-50 text-orange-700 font-semibold px-4 py-2 rounded-lg text-sm cursor-pointer transition-all">
+          <i class="fa-solid fa-house-circle-check mr-1" aria-hidden="true"></i> Buy a Flat
+        </button>
+        <button id="tab-rent" role="tab" aria-selected="false" onclick="switchTab('rent')"
+          class="text-slate-500 hover:text-slate-800 font-medium px-4 py-2 rounded-lg text-sm cursor-pointer transition-all">
+          <i class="fa-solid fa-key mr-1" aria-hidden="true"></i> Rent a Flat
+        </button>
+        <button id="tab-list" role="tab" aria-selected="false" onclick="window.location.href='post-property.html'"
+          class="text-slate-500 hover:text-slate-800 font-medium px-4 py-2 rounded-lg text-sm cursor-pointer transition-all">
+          <i class="fa-solid fa-plus mr-1" aria-hidden="true"></i> List Property (Free)
+        </button>
+      </div>
+
+      <!-- Inputs -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div>
+          <label for="city-input" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">City / Locality</label>
+          <div class="relative">
+            <i class="fa-solid fa-location-dot absolute left-3 top-3.5 text-slate-400" aria-hidden="true"></i>
+            <input type="text" id="city-input" placeholder="e.g., Whitefield, Andheri"
+              class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition"
+              list="city-suggestions" autocomplete="off">
+            <datalist id="city-suggestions">
+              <option value="Mumbai">
+              <option value="Delhi NCR">
+              <option value="Bengaluru">
+              <option value="Hyderabad">
+              <option value="Pune">
+              <option value="Chennai">
+              <option value="Ahmedabad">
+              <option value="Kolkata">
+              <option value="Noida">
+              <option value="Gurgaon">
+              <option value="Whitefield, Bengaluru">
+              <option value="Andheri, Mumbai">
+            </datalist>
+          </div>
         </div>
-    </header>
 
-    <!-- HERO SECTION WITH LOCALIZED SEARCH -->
-    <section class="relative bg-slate-950 py-20 lg:py-28 overflow-hidden">
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px]"></div>
-        <div class="absolute -top-40 -right-40 w-96 h-96 bg-orange-500 rounded-full blur-3xl opacity-20"></div>
-        
-        <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <span class="text-orange-400 font-semibold tracking-wider uppercase text-xs bg-orange-950/60 px-3 py-1 rounded-full border border-orange-900/50">100% Verified Owner Listings</span>
-            <h1 class="mt-4 text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
-                Find Flats in India. <br><span class="text-orange-500">Zero Brokerage.</span>
-            </h1>
-            <p class="mt-4 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto">
-                Buy, sell, or rent residential apartments and flats across top Indian metros directly from owners without paying hefty agent commissions.
-            </p>
-
-            <!-- Interactive Search Box Container -->
-            <div class="mt-10 bg-white p-4 sm:p-6 rounded-2xl shadow-2xl max-w-4xl mx-auto text-left border border-slate-100">
-                
-                <!-- Fixed 2nd Image Functionality (Search Tabs JavaScript Action) -->
-                <div class="flex gap-2 border-b border-slate-100 pb-4 mb-4">
-                    <button id="tab-buy" onclick="switchTab('buy')" class="bg-orange-50 text-orange-700 font-semibold px-4 py-2 rounded-lg text-sm cursor-pointer transition-all">Buy a Flat</button>
-                    <button id="tab-rent" onclick="switchTab('rent')" class="text-slate-500 hover:text-slate-800 font-medium px-4 py-2 rounded-lg text-sm cursor-pointer transition-all">Rent a Flat</button>
-                    <button id="tab-list" onclick="window.location.href='post-property.html'" class="text-slate-500 hover:text-slate-800 font-medium px-4 py-2 rounded-lg text-sm cursor-pointer transition-all">List Property (Free)</button>
-                </div>
-
-                <!-- Input Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">City / Locality</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-location-dot absolute left-3 top-3.5 text-slate-400"></i>
-                            <input type="text" placeholder="e.g., Whitefield, Andheri" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Configuration</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-bed absolute left-3 top-3.5 text-slate-400"></i>
-                            <select class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition appearance-none">
-                                <option>Select BHK</option>
-                                <option>1 BHK</option>
-                                <option>2 BHK</option>
-                                <option>3 BHK</option>
-                                <option>4+ BHK</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label id="budget-label" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Budget</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-indian-rupee-sign absolute left-3 top-3.5 text-slate-400"></i>
-                            <select id="budget-select" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition appearance-none">
-                                <option>Select Budget</option>
-                                <option>Under ₹30 Lakhs</option>
-                                <option>₹30 - ₹70 Lakhs</option>
-                                <option>₹70 Lakhs - ₹1.5 Cr</option>
-                                <option>₹1.5 Cr+</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <button class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 shadow-lg cursor-pointer">
-                            <i class="fa-solid fa-magnifying-glass text-orange-500"></i> Search Properties
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FEATURED PROPERTIES SECTION -->
-    <main id="featured-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-4">
-            <div>
-                <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Trending Owner Properties</h2>
-                <p class="text-slate-500 mt-1">Direct listings skipping traditional real estate brokerage.</p>
-            </div>
-            <a href="#" class="text-orange-600 font-semibold hover:text-orange-700 transition flex items-center gap-1 group">
-                See All Listings <i class="fa-solid fa-arrow-right text-sm group-hover:translate-x-1 transition"></i>
-            </a>
+        <div>
+          <label for="bhk-select" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Configuration</label>
+          <div class="relative">
+            <i class="fa-solid fa-bed absolute left-3 top-3.5 text-slate-400" aria-hidden="true"></i>
+            <select id="bhk-select" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition appearance-none">
+              <option value="">Any BHK</option>
+              <option value="1">1 BHK</option>
+              <option value="2">2 BHK</option>
+              <option value="3">3 BHK</option>
+              <option value="4">4+ BHK</option>
+            </select>
+          </div>
         </div>
 
-        <!-- Property Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            
-            <!-- Indian Card Sample 1 -->
-            <div class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition group">
-                <div class="relative h-64 bg-slate-200">
-                    <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80" alt="Apartment" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    <span class="absolute top-4 left-4 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">For Sale</span>
-                    <span class="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-xs text-white text-xs font-medium px-2.5 py-1 rounded-md"><i class="fa-solid fa-shield-check text-orange-400 mr-1"></i> RERA Approved</span>
-                </div>
-                <div class="p-6">
-                    <h3 class="text-2xl font-bold text-slate-900">₹85 Lakhs</h3>
-                    <p class="text-lg font-semibold text-slate-800 mt-1">Spacious 2 BHK Apartment</p>
-                    <p class="text-slate-500 text-sm flex items-center gap-1 mt-1">
-                        <i class="fa-solid fa-location-dot text-orange-600"></i> Whitefield, Bengaluru, Karnataka
-                    </p>
-                    <div class="flex items-center justify-between border-t border-slate-100 mt-6 pt-4 text-slate-500 text-sm font-medium">
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-bed text-orange-600"></i> 2 BHK</span>
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-bath text-orange-600"></i> 2 Baths</span>
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-ruler-combined text-orange-600"></i> 1,250 sqft</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Indian Card Sample 2 -->
-            <div class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition group">
-                <div class="relative h-64 bg-slate-200">
-                    <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80" alt="Modern House" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    <span class="absolute top-4 left-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">For Rent</span>
-                    <span class="absolute bottom-4 left-4 bg-emerald-600 text-white text-xs font-medium px-2.5 py-1 rounded-md">Bachelors Allowed</span>
-                </div>
-                <div class="p-6">
-                    <h3 class="text-2xl font-bold text-slate-900">₹32,000 <span class="text-sm font-normal text-slate-500">/ month</span></h3>
-                    <p class="text-lg font-semibold text-slate-800 mt-1">Semi-Furnished 3 BHK Flat</p>
-                    <p class="text-slate-500 text-sm flex items-center gap-1 mt-1">
-                        <i class="fa-solid fa-location-dot text-orange-600"></i> Sector 62, Noida, UP
-                    </p>
-                    <div class="flex items-center justify-between border-t border-slate-100 mt-6 pt-4 text-slate-500 text-sm font-medium">
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-bed text-orange-600"></i> 3 BHK</span>
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-bath text-orange-600"></i> 3 Baths</span>
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-couch text-orange-600"></i> Semi-Furn.</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Indian Card Sample 3 -->
-            <div class="bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition group">
-                <div class="relative h-64 bg-slate-200">
-                    <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80" alt="Penthouse" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                    <span class="absolute top-4 left-4 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">For Sale</span>
-                    <span class="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-xs text-white text-xs font-medium px-2.5 py-1 rounded-md"><i class="fa-solid fa-shield-check text-orange-400 mr-1"></i> RERA Approved</span>
-                </div>
-                <div class="p-6">
-                    <h3 class="text-2xl font-bold text-slate-900">₹2.45 Crore</h3>
-                    <p class="text-lg font-semibold text-slate-800 mt-1">Premium 4 BHK Luxury Penthouse</p>
-                    <p class="text-slate-500 text-sm flex items-center gap-1 mt-1">
-                        <i class="fa-solid fa-location-dot text-orange-600"></i> Andheri West, Mumbai, Maharashtra
-                    </p>
-                    <div class="flex items-center justify-between border-t border-slate-100 mt-6 pt-4 text-slate-500 text-sm font-medium">
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-bed text-orange-600"></i> 4 BHK</span>
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-bath text-orange-600"></i> 4 Baths</span>
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-car text-orange-600"></i> 2 Parking</span>
-                    </div>
-                </div>
-            </div>
-
+        <div>
+          <label id="budget-label" for="budget-select" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Budget</label>
+          <div class="relative">
+            <i class="fa-solid fa-indian-rupee-sign absolute left-3 top-3.5 text-slate-400" aria-hidden="true"></i>
+            <select id="budget-select" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition appearance-none">
+              <option value="">Any Budget</option>
+              <option value="u30">Under ₹30 Lakhs</option>
+              <option value="30-70">₹30 – ₹70 Lakhs</option>
+              <option value="70-150">₹70 Lakhs – ₹1.5 Cr</option>
+              <option value="150+">₹1.5 Cr+</option>
+            </select>
+          </div>
         </div>
-    </main>
 
-    <!-- FOOTER -->
-    <footer class="bg-slate-950 text-slate-400 border-t border-slate-900 pt-16 pb-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-            <div>
-                <span class="text-xl font-bold text-white">bhk.com</span>
-                <p class="mt-4 text-sm leading-relaxed">India's growing zero-brokerage residential marketplace. Connect securely with property owners directly.</p>
-            </div>
-            <div>
-                <h4 class="text-white font-semibold mb-4">Top Cities</h4>
-                <ul class="space-y-2 text-sm">
-                    <li><a href="#" class="hover:text-white transition">Flats in Mumbai</a></li>
-                    <li><a href="#" class="hover:text-white transition">Flats in Bengaluru</a></li>
-                    <li><a href="#" class="hover:text-white transition">Flats in Delhi NCR</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="text-white font-semibold mb-4">Legal & Trust</h4>
-                <ul class="space-y-2 text-sm">
-                    <li><a href="#" class="hover:text-white transition">RERA Compliance</a></li>
-                    <li><a href="#" class="hover:text-white transition">Avoid Broker Scams</a></li>
-                    <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="text-white font-semibold mb-4">Contact Support</h4>
-                <ul class="space-y-2 text-sm">
-                    <li><i class="fa-solid fa-envelope mr-2"></i> help@bhk.com</li>
-                    <li><i class="fa-brands fa-whatsapp mr-2 text-emerald-500"></i> Support on WhatsApp</li>
-                </ul>
-            </div>
+        <div>
+          <button onclick="doSearch()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+            <i class="fa-solid fa-magnifying-glass text-orange-500" aria-hidden="true"></i> Search
+          </button>
         </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-900 text-center text-xs text-slate-500">
-            &copy; 2026 bhk.com India. All rights reserved.
+      </div>
+
+      <!-- Quick Tags -->
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="text-xs text-slate-400 self-center">Trending:</span>
+        <button onclick="quickSearch('2 BHK Bengaluru')" class="text-xs bg-slate-100 hover:bg-orange-50 hover:text-orange-700 text-slate-600 px-3 py-1 rounded-full transition cursor-pointer">2 BHK Bengaluru</button>
+        <button onclick="quickSearch('3 BHK Noida')" class="text-xs bg-slate-100 hover:bg-orange-50 hover:text-orange-700 text-slate-600 px-3 py-1 rounded-full transition cursor-pointer">3 BHK Noida</button>
+        <button onclick="quickSearch('Flat for rent Mumbai')" class="text-xs bg-slate-100 hover:bg-orange-50 hover:text-orange-700 text-slate-600 px-3 py-1 rounded-full transition cursor-pointer">Flat for rent Mumbai</button>
+        <button onclick="quickSearch('1 BHK under 30 lakhs')" class="text-xs bg-slate-100 hover:bg-orange-50 hover:text-orange-700 text-slate-600 px-3 py-1 rounded-full transition cursor-pointer">1 BHK under ₹30L</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     TRUST STATS BANNER
+============================================================ -->
+<section class="bg-orange-600 py-8" aria-label="Platform statistics">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+    <div>
+      <p class="text-3xl font-extrabold text-white stat-num" data-target="12000">0</p>
+      <p class="text-orange-100 text-sm mt-1">Verified Owner Listings</p>
+    </div>
+    <div>
+      <p class="text-3xl font-extrabold text-white stat-num" data-target="800">0</p>
+      <p class="text-orange-100 text-sm mt-1">Lakh+ Happy Buyers</p>
+    </div>
+    <div>
+      <p class="text-3xl font-extrabold text-white">₹0</p>
+      <p class="text-orange-100 text-sm mt-1">Brokerage Charged</p>
+    </div>
+    <div>
+      <p class="text-3xl font-extrabold text-white stat-num" data-target="28">0</p>
+      <p class="text-orange-100 text-sm mt-1">Cities Covered</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FEATURED LISTINGS
+============================================================ -->
+<main id="listings" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-4">
+    <div>
+      <p class="text-orange-600 font-semibold text-sm uppercase tracking-wider mb-1">Trending now</p>
+      <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Owner Properties</h2>
+      <p class="text-slate-500 mt-1">Direct listings — no agent, no commission.</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <button onclick="filterListings('all')" class="filter-btn text-sm px-4 py-2 rounded-lg border border-slate-200 hover:border-orange-500 hover:text-orange-600 transition active-filter">All</button>
+      <button onclick="filterListings('sale')" class="filter-btn text-sm px-4 py-2 rounded-lg border border-slate-200 hover:border-orange-500 hover:text-orange-600 transition">For Sale</button>
+      <button onclick="filterListings('rent')" class="filter-btn text-sm px-4 py-2 rounded-lg border border-slate-200 hover:border-orange-500 hover:text-orange-600 transition">For Rent</button>
+    </div>
+  </div>
+
+  <!-- Property Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" id="property-grid" role="list">
+
+    <!-- Card 1 -->
+    <article class="prop-card bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 group" data-type="sale" role="listitem">
+      <div class="relative h-56 bg-slate-200 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
+          alt="2 BHK apartment for sale in Whitefield, Bengaluru — exterior view"
+          class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" width="800" height="450">
+        <span class="absolute top-4 left-4 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">For Sale</span>
+        <span class="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-md">
+          <i class="fa-solid fa-shield-check text-orange-400 mr-1" aria-hidden="true"></i> RERA Approved
+        </span>
+        <button class="absolute top-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full transition" aria-label="Save property">
+          <i class="fa-regular fa-heart text-slate-600" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <h3 class="text-2xl font-bold text-slate-900">₹85 Lakhs</h3>
+        <p class="text-base font-semibold text-slate-700 mt-1">Spacious 2 BHK Apartment</p>
+        <p class="text-slate-500 text-sm flex items-center gap-1 mt-1">
+          <i class="fa-solid fa-location-dot text-orange-600" aria-hidden="true"></i>
+          <span>Whitefield, Bengaluru, Karnataka</span>
+        </p>
+        <div class="flex items-center justify-between border-t border-slate-100 mt-5 pt-4 text-slate-500 text-sm font-medium">
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bed text-orange-600" aria-hidden="true"></i> 2 BHK</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bath text-orange-600" aria-hidden="true"></i> 2 Baths</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-ruler-combined text-orange-600" aria-hidden="true"></i> 1,250 sqft</span>
         </div>
-    </footer>
+        <a href="#" class="mt-4 w-full block text-center bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold py-2.5 rounded-xl transition text-sm">
+          Contact Owner
+        </a>
+      </div>
+    </article>
 
-    <!-- INTERACTIVE JAVASCRIPT BLOCK -->
-    <script>
-        function switchTab(type) {
-            const buyTab = document.getElementById('tab-buy');
-            const rentTab = document.getElementById('tab-rent');
-            const budgetLabel = document.getElementById('budget-label');
-            const budgetSelect = document.getElementById('budget-select');
+    <!-- Card 2 -->
+    <article class="prop-card bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 group" data-type="rent" role="listitem">
+      <div class="relative h-56 bg-slate-200 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80"
+          alt="3 BHK semi-furnished flat for rent in Sector 62, Noida — living room"
+          class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" width="800" height="450">
+        <span class="absolute top-4 left-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">For Rent</span>
+        <span class="absolute bottom-4 left-4 bg-emerald-600 text-white text-xs font-medium px-2.5 py-1 rounded-md">Bachelors Allowed</span>
+        <button class="absolute top-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full transition" aria-label="Save property">
+          <i class="fa-regular fa-heart text-slate-600" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <h3 class="text-2xl font-bold text-slate-900">₹32,000 <span class="text-sm font-normal text-slate-500">/ month</span></h3>
+        <p class="text-base font-semibold text-slate-700 mt-1">Semi-Furnished 3 BHK Flat</p>
+        <p class="text-slate-500 text-sm flex items-center gap-1 mt-1">
+          <i class="fa-solid fa-location-dot text-orange-600" aria-hidden="true"></i>
+          <span>Sector 62, Noida, UP</span>
+        </p>
+        <div class="flex items-center justify-between border-t border-slate-100 mt-5 pt-4 text-slate-500 text-sm font-medium">
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bed text-orange-600" aria-hidden="true"></i> 3 BHK</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bath text-orange-600" aria-hidden="true"></i> 3 Baths</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-couch text-orange-600" aria-hidden="true"></i> Semi-Furn.</span>
+        </div>
+        <a href="#" class="mt-4 w-full block text-center bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold py-2.5 rounded-xl transition text-sm">
+          Contact Owner
+        </a>
+      </div>
+    </article>
 
-            if (type === 'buy') {
-                // Highlight Buy Tab
-                buyTab.className = "bg-orange-50 text-orange-700 font-semibold px-4 py-2 rounded-lg text-sm cursor-pointer transition-all";
-                rentTab.className = "text-slate-500 hover:text-slate-800 font-medium px-4 py-2 rounded-lg text-sm cursor-pointer transition-all";
-                
-                // Set Buy Budget Options
-                budgetLabel.innerText = "Budget";
-                budgetSelect.innerHTML = `
-                    <option>Select Budget</option>
-                    <option>Under ₹30 Lakhs</option>
-                    <option>₹30 - ₹70 Lakhs</option>
-                    <option>₹70 Lakhs - ₹1.5 Cr</option>
-                    <option>₹1.5 Cr+</option>
-                `;
-            } else if (type === 'rent') {
-                // Highlight Rent Tab
-                rentTab.className = "bg-orange-50 text-orange-700 font-semibold px-4 py-2 rounded-lg text-sm cursor-pointer transition-all";
-                buyTab.className = "text-slate-500 hover:text-slate-800 font-medium px-4 py-2 rounded-lg text-sm cursor-pointer transition-all";
-                
-                // Dynamically change budget options for Renting
-                budgetLabel.innerText = "Monthly Rent";
-                budgetSelect.innerHTML = `
-                    <option>Select Rent</option>
-                    <option>Under ₹15,000</option>
-                    <option>₹15,000 - ₹30,000</option>
-                    <option>₹30,000 - ₹60,000</option>
-                    <option>₹60,000+</option>
-                `;
-            }
-        }
-    </script>
+    <!-- Card 3 -->
+    <article class="prop-card bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 group" data-type="sale" role="listitem">
+      <div class="relative h-56 bg-slate-200 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
+          alt="4 BHK luxury penthouse for sale in Andheri West, Mumbai — aerial view"
+          class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" width="800" height="450">
+        <span class="absolute top-4 left-4 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">For Sale</span>
+        <span class="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-md">
+          <i class="fa-solid fa-shield-check text-orange-400 mr-1" aria-hidden="true"></i> RERA Approved
+        </span>
+        <button class="absolute top-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full transition" aria-label="Save property">
+          <i class="fa-regular fa-heart text-slate-600" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <h3 class="text-2xl font-bold text-slate-900">₹2.45 Crore</h3>
+        <p class="text-base font-semibold text-slate-700 mt-1">Premium 4 BHK Luxury Penthouse</p>
+        <p class="text-slate-500 text-sm flex items-center gap-1 mt-1">
+          <i class="fa-solid fa-location-dot text-orange-600" aria-hidden="true"></i>
+          <span>Andheri West, Mumbai, Maharashtra</span>
+        </p>
+        <div class="flex items-center justify-between border-t border-slate-100 mt-5 pt-4 text-slate-500 text-sm font-medium">
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bed text-orange-600" aria-hidden="true"></i> 4 BHK</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bath text-orange-600" aria-hidden="true"></i> 4 Baths</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-car text-orange-600" aria-hidden="true"></i> 2 Parking</span>
+        </div>
+        <a href="#" class="mt-4 w-full block text-center bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold py-2.5 rounded-xl transition text-sm">
+          Contact Owner
+        </a>
+      </div>
+    </article>
+
+    <!-- Card 4 -->
+    <article class="prop-card bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 group" data-type="rent" role="listitem">
+      <div class="relative h-56 bg-slate-200 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80"
+          alt="2 BHK furnished flat for rent in Banjara Hills, Hyderabad — bedroom"
+          class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" width="800" height="450">
+        <span class="absolute top-4 left-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">For Rent</span>
+        <span class="absolute bottom-4 left-4 bg-purple-600 text-white text-xs font-medium px-2.5 py-1 rounded-md">Family Preferred</span>
+        <button class="absolute top-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full transition" aria-label="Save property">
+          <i class="fa-regular fa-heart text-slate-600" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <h3 class="text-2xl font-bold text-slate-900">₹22,000 <span class="text-sm font-normal text-slate-500">/ month</span></h3>
+        <p class="text-base font-semibold text-slate-700 mt-1">Fully Furnished 2 BHK Flat</p>
+        <p class="text-slate-500 text-sm flex items-center gap-1 mt-1">
+          <i class="fa-solid fa-location-dot text-orange-600" aria-hidden="true"></i>
+          <span>Banjara Hills, Hyderabad, Telangana</span>
+        </p>
+        <div class="flex items-center justify-between border-t border-slate-100 mt-5 pt-4 text-slate-500 text-sm font-medium">
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bed text-orange-600" aria-hidden="true"></i> 2 BHK</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bath text-orange-600" aria-hidden="true"></i> 2 Baths</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-wifi text-orange-600" aria-hidden="true"></i> WiFi Incl.</span>
+        </div>
+        <a href="#" class="mt-4 w-full block text-center bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold py-2.5 rounded-xl transition text-sm">
+          Contact Owner
+        </a>
+      </div>
+    </article>
+
+    <!-- Card 5 -->
+    <article class="prop-card bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 group" data-type="sale" role="listitem">
+      <div class="relative h-56 bg-slate-200 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80"
+          alt="3 BHK apartment for sale in Viman Nagar, Pune — modern kitchen"
+          class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" width="800" height="450">
+        <span class="absolute top-4 left-4 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">For Sale</span>
+        <span class="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-md">
+          <i class="fa-solid fa-shield-check text-orange-400 mr-1" aria-hidden="true"></i> RERA Approved
+        </span>
+        <button class="absolute top-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full transition" aria-label="Save property">
+          <i class="fa-regular fa-heart text-slate-600" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <h3 class="text-2xl font-bold text-slate-900">₹1.15 Crore</h3>
+        <p class="text-base font-semibold text-slate-700 mt-1">3 BHK Apartment in Gated Society</p>
+        <p class="text-slate-500 text-sm flex items-center gap-1 mt-1">
+          <i class="fa-solid fa-location-dot text-orange-600" aria-hidden="true"></i>
+          <span>Viman Nagar, Pune, Maharashtra</span>
+        </p>
+        <div class="flex items-center justify-between border-t border-slate-100 mt-5 pt-4 text-slate-500 text-sm font-medium">
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bed text-orange-600" aria-hidden="true"></i> 3 BHK</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bath text-orange-600" aria-hidden="true"></i> 2 Baths</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-ruler-combined text-orange-600" aria-hidden="true"></i> 1,680 sqft</span>
+        </div>
+        <a href="#" class="mt-4 w-full block text-center bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold py-2.5 rounded-xl transition text-sm">
+          Contact Owner
+        </a>
+      </div>
+    </article>
+
+    <!-- Card 6 -->
+    <article class="prop-card bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 group" data-type="rent" role="listitem">
+      <div class="relative h-56 bg-slate-200 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=800&q=80"
+          alt="1 BHK studio for rent in Anna Nagar, Chennai — furnished room"
+          class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" width="800" height="450">
+        <span class="absolute top-4 left-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">For Rent</span>
+        <span class="absolute bottom-4 left-4 bg-emerald-600 text-white text-xs font-medium px-2.5 py-1 rounded-md">Bachelors Allowed</span>
+        <button class="absolute top-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full transition" aria-label="Save property">
+          <i class="fa-regular fa-heart text-slate-600" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <h3 class="text-2xl font-bold text-slate-900">₹12,500 <span class="text-sm font-normal text-slate-500">/ month</span></h3>
+        <p class="text-base font-semibold text-slate-700 mt-1">Compact 1 BHK Studio Flat</p>
+        <p class="text-slate-500 text-sm flex items-center gap-1 mt-1">
+          <i class="fa-solid fa-location-dot text-orange-600" aria-hidden="true"></i>
+          <span>Anna Nagar, Chennai, Tamil Nadu</span>
+        </p>
+        <div class="flex items-center justify-between border-t border-slate-100 mt-5 pt-4 text-slate-500 text-sm font-medium">
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bed text-orange-600" aria-hidden="true"></i> 1 BHK</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-bath text-orange-600" aria-hidden="true"></i> 1 Bath</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-ruler-combined text-orange-600" aria-hidden="true"></i> 520 sqft</span>
+        </div>
+        <a href="#" class="mt-4 w-full block text-center bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold py-2.5 rounded-xl transition text-sm">
+          Contact Owner
+        </a>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- View All CTA -->
+  <div class="text-center mt-12">
+    <a href="#" class="inline-flex items-center gap-2 bg-white border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-bold px-8 py-3 rounded-xl transition group">
+      View All Listings <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition" aria-hidden="true"></i>
+    </a>
+  </div>
+</main>
+
+
+<!-- ============================================================
+     BROWSE BY CITY
+============================================================ -->
+<section id="cities" class="bg-slate-900 py-16" aria-labelledby="cities-heading">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-10">
+      <p class="text-orange-400 font-semibold text-sm uppercase tracking-wider mb-1">Available across India</p>
+      <h2 id="cities-heading" class="text-3xl font-bold text-white">Browse by City</h2>
+      <p class="text-slate-400 mt-2">Find owner properties in your preferred city — zero brokerage guaranteed.</p>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+      <a href="/flats-in-mumbai/" class="group bg-slate-800 hover:bg-orange-600 rounded-xl p-4 text-center transition cursor-pointer block">
+        <div class="text-2xl mb-2" aria-hidden="true">🏙️</div>
+        <p class="text-white font-semibold text-sm">Mumbai</p>
+        <p class="text-slate-400 group-hover:text-orange-100 text-xs mt-0.5">2,340 listings</p>
+      </a>
+      <a href="/flats-in-delhi/" class="group bg-slate-800 hover:bg-orange-600 rounded-xl p-4 text-center transition cursor-pointer block">
+        <div class="text-2xl mb-2" aria-hidden="true">🕌</div>
+        <p class="text-white font-semibold text-sm">Delhi NCR</p>
+        <p class="text-slate-400 group-hover:text-orange-100 text-xs mt-0.5">1,890 listings</p>
+      </a>
+      <a href="/flats-in-bengaluru/" class="group bg-slate-800 hover:bg-orange-600 rounded-xl p-4 text-center transition cursor-pointer block">
+        <div class="text-2xl mb-2" aria-hidden="true">🌿</div>
+        <p class="text-white font-semibold text-sm">Bengaluru</p>
+        <p class="text-slate-400 group-hover:text-orange-100 text-xs mt-0.5">2,110 listings</p>
+      </a>
+      <a href="/flats-in-hyderabad/" class="group bg-slate-800 hover:bg-orange-600 rounded-xl p-4 text-center transition cursor-pointer block">
+        <div class="text-2xl mb-2" aria-hidden="true">💎</div>
+        <p class="text-white font-semibold text-sm">Hyderabad</p>
+        <p class="text-slate-400 group-hover:text-orange-100 text-xs mt-0.5">1,560 listings</p>
+      </a>
+      <a href="/flats-in-pune/" class="group bg-slate-800 hover:bg-orange-600 rounded-xl p-4 text-center transition cursor-pointer block">
+        <div class="text-2xl mb-2" aria-hidden="true">🎓</div>
+        <p class="text-white font-semibold text-sm">Pune</p>
+        <p class="text-slate-400 group-hover:text-orange-100 text-xs mt-0.5">980 listings</p>
+      </a>
+      <a href="/flats-in-chennai/" class="group bg-slate-800 hover:bg-orange-600 rounded-xl p-4 text-center transition cursor-pointer block">
+        <div class="text-2xl mb-2" aria-hidden="true">🌊</div>
+        <p class="text-white font-semibold text-sm">Chennai</p>
+        <p class="text-slate-400 group-hover:text-orange-100 text-xs mt-0.5">740 listings</p>
+      </a>
+      <a href="/flats-in-ahmedabad/" class="group bg-slate-800 hover:bg-orange-600 rounded-xl p-4 text-center transition cursor-pointer block">
+        <div class="text-2xl mb-2" aria-hidden="true">🏗️</div>
+        <p class="text-white font-semibold text-sm">Ahmedabad</p>
+        <p class="text-slate-400 group-hover:text-orange-100 text-xs mt-0.5">620 listings</p>
+      </a>
+      <a href="/flats-in-kolkata/" class="group bg-slate-800 hover:bg-orange-600 rounded-xl p-4 text-center transition cursor-pointer block">
+        <div class="text-2xl mb-2" aria-hidden="true">🎭</div>
+        <p class="text-white font-semibold text-sm">Kolkata</p>
+        <p class="text-slate-400 group-hover:text-orange-100 text-xs mt-0.5">510 listings</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     EMI / MORTGAGE CALCULATOR
+============================================================ -->
+<section id="calculator" class="py-16 bg-white" aria-labelledby="calc-heading">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-10">
+      <p class="text-orange-600 font-semibold text-sm uppercase tracking-wider mb-1">Plan your purchase</p>
+      <h2 id="calc-heading" class="text-3xl font-bold text-slate-900">EMI &amp; Mortgage Calculator</h2>
+      <p class="text-slate-500 mt-2">Calculate your monthly EMI, total interest, and compare bank rates instantly.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Sliders -->
+      <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+        <h3 class="font-semibold text-slate-800 mb-5">Loan Details</h3>
+
+        <div class="mb-5">
+          <div class="flex justify-between mb-2">
+            <label for="c-price" class="text-sm text-slate-600 font-medium">Property Price</label>
+            <span id="c-price-out" class="text-sm font-bold text-orange-600">₹85 Lakhs</span>
+          </div>
+          <input type="range" id="c-price" min="10" max="500" step="5" value="85" class="w-full" oninput="calcEmi()">
+          <div class="flex justify-between text-xs text-slate-400 mt-1"><span>₹10L</span><span>₹5 Cr</span></div>
+        </div>
+
+        <div class="mb-5">
+          <div class="flex justify-between mb-2">
+            <label for="c-down" class="text-sm text-slate-600 font-medium">Down Payment</label>
+            <span id="c-down-out" class="text-sm font-bold text-orange-600">20%</span>
+          </div>
+          <input type="range" id="c-down" min="10" max="50" step="1" value="20" class="w-full" oninput="calcEmi()">
+          <div class="flex justify-between text-xs text-slate-400 mt-1"><span>10%</span><span>50%</span></div>
+        </div>
+
+        <div class="mb-5">
+          <div class="flex justify-between mb-2">
+            <label for="c-rate" class="text-sm text-slate-600 font-medium">Interest Rate (p.a.)</label>
+            <span id="c-rate-out" class="text-sm font-bold text-orange-600">8.5%</span>
+          </div>
+          <input type="range" id="c-rate" min="6" max="14" step="0.1" value="8.5" class="w-full" oninput="calcEmi()">
+          <div class="flex justify-between text-xs text-slate-400 mt-1"><span>6%</span><span>14%</span></div>
+        </div>
+
+        <div class="mb-5">
+          <div class="flex justify-between mb-2">
+            <label for="c-tenure" class="text-sm text-slate-600 font-medium">Loan Tenure</label>
+            <span id="c-tenure-out" class="text-sm font-bold text-orange-600">20 years</span>
+          </div>
+          <input type="range" id="c-tenure" min="5" max="30" step="1" value="20" class="w-full" oninput="calcEmi()">
+          <div class="flex justify-between text-xs text-slate-400 mt-1"><span>5 yrs</span><span>30 yrs</span></div>
+        </div>
+
+        <p class="text-xs text-slate-400 mt-2">
+          <i class="fa-solid fa-circle-info mr-1" aria-hidden="true"></i>
+          Current home loan rates in India: 8.35%–9.5% (Jun 2026). SBI: 8.50%, HDFC: 8.75%, ICICI: 8.75%
+        </p>
+      </div>
+
+      <!-- Results -->
+      <div class="space-y-5">
+        <!-- Monthly EMI highlight -->
+        <div class="bg-orange-600 rounded-2xl p-6 text-white">
+          <p class="text-orange-100 text-sm font-medium mb-1">Monthly EMI</p>
+          <p id="emi-result" class="text-4xl font-extrabold">₹54,123</p>
+          <p class="text-orange-200 text-xs mt-1">Based on ₹68L loan at 8.5% for 20 years</p>
+        </div>
+
+        <!-- 4 metrics -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <p class="text-xs text-slate-500 mb-1">Loan Amount</p>
+            <p id="r-loan" class="text-xl font-bold text-slate-900">₹68 L</p>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <p class="text-xs text-slate-500 mb-1">Down Payment</p>
+            <p id="r-down" class="text-xl font-bold text-slate-900">₹17 L</p>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <p class="text-xs text-slate-500 mb-1">Total Interest</p>
+            <p id="r-interest" class="text-xl font-bold text-slate-900">₹62 L</p>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <p class="text-xs text-slate-500 mb-1">Total Payment</p>
+            <p id="r-total" class="text-xl font-bold text-slate-900">₹1.30 Cr</p>
+          </div>
+        </div>
+
+        <!-- Principal vs Interest bar -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <div class="flex justify-between text-sm mb-2">
+            <span class="text-slate-600">Principal <span id="r-ppct" class="font-bold text-blue-600">52%</span></span>
+            <span class="text-slate-600">Interest <span id="r-ipct" class="font-bold text-orange-600">48%</span></span>
+          </div>
+          <div class="flex h-3 rounded-full overflow-hidden gap-1">
+            <div id="bar-principal" class="h-full bg-blue-500 rounded-l-full transition-all duration-500" style="width:52%"></div>
+            <div id="bar-interest" class="h-full bg-orange-500 rounded-r-full transition-all duration-500" style="width:48%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Balance Chart -->
+    <div class="mt-8 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+      <h3 class="font-semibold text-slate-800 mb-4">Outstanding loan balance over time</h3>
+      <div style="position:relative; height:240px;">
+        <canvas id="balanceChart" role="img" aria-label="Line chart showing outstanding loan balance reducing year by year"></canvas>
+      </div>
+    </div>
+
+    <!-- Rate Compare -->
+    <div class="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-6">
+      <h3 class="font-semibold text-slate-800 mb-4">EMI comparison at different rates</h3>
+      <div id="rate-compare" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     MARKET TRENDS
+============================================================ -->
+<section id="trends" class="py-16 bg-slate-50" aria-labelledby="trends-heading">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-10">
+      <p class="text-orange-600 font-semibold text-sm uppercase tracking-wider mb-1">Data-driven insights</p>
+      <h2 id="trends-heading" class="text-3xl font-bold text-slate-900">Indian Real Estate Market Trends</h2>
+      <p class="text-slate-500 mt-2">City-wise price trends, segment outlook, and buy vs rent analysis — updated June 2026.</p>
+    </div>
+
+    <!-- Top KPIs -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 text-center">
+        <p class="text-4xl font-extrabold text-green-600">+8.4%</p>
+        <p class="text-slate-600 font-medium mt-1">Avg. price growth YoY</p>
+        <p class="text-slate-400 text-xs mt-1">Top 8 metros, 2025–26</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 text-center">
+        <p class="text-4xl font-extrabold text-slate-900">4.2L</p>
+        <p class="text-slate-600 font-medium mt-1">Unsold units in market</p>
+        <p class="text-slate-400 text-xs mt-1">Down 11% vs last year</p>
+      </div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 text-center">
+        <p class="text-4xl font-extrabold text-orange-600">1.8L</p>
+        <p class="text-slate-600 font-medium mt-1">New launches in 2026</p>
+        <p class="text-slate-400 text-xs mt-1">Jan–Jun 2026</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <!-- City price table -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6">
+        <h3 class="font-semibold text-slate-800 mb-4">City-wise average price (₹/sqft)</h3>
+        <div id="city-price-table" class="space-y-3"></div>
+      </div>
+
+      <!-- Trend chart -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6">
+        <h3 class="font-semibold text-slate-800 mb-1">6-month price index (Jan–Jun 2026)</h3>
+        <div class="flex gap-4 mb-4 flex-wrap">
+          <span class="flex items-center gap-1.5 text-xs text-slate-500"><span class="w-3 h-3 rounded-sm inline-block" style="background:#D85A30"></span>Mumbai</span>
+          <span class="flex items-center gap-1.5 text-xs text-slate-500"><span class="w-3 h-3 rounded-sm inline-block" style="background:#378ADD"></span>Bengaluru</span>
+          <span class="flex items-center gap-1.5 text-xs text-slate-500"><span class="w-3 h-3 rounded-sm inline-block" style="background:#1D9E75"></span>Delhi NCR</span>
+          <span class="flex items-center gap-1.5 text-xs text-slate-500"><span class="w-3 h-3 rounded-sm inline-block" style="background:#BA7517"></span>Hyderabad</span>
+        </div>
+        <div style="position:relative; height:240px;">
+          <canvas id="trendChart" role="img" aria-label="Line chart showing real estate price index for Mumbai, Bengaluru, Delhi NCR and Hyderabad from January to June 2026">Price index data for 4 major Indian cities.</canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+      <!-- Segment outlook -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6">
+        <h3 class="font-semibold text-slate-800 mb-4">Segment outlook</h3>
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-slate-600">Affordable (under ₹50L)</span>
+              <span class="text-slate-500 font-medium">Stable demand</span>
+            </div>
+            <div class="pbar"><div class="pbar-fill bg-blue-400" style="width:60%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-slate-600">Mid-range (₹50L–₹1.5Cr)</span>
+              <span class="text-green-600 font-semibold">🔥 Hottest segment</span>
+            </div>
+            <div class="pbar"><div class="pbar-fill bg-orange-500" style="width:92%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-slate-600">Luxury (₹1.5Cr+)</span>
+              <span class="text-green-600 font-medium">Rising</span>
+            </div>
+            <div class="pbar"><div class="pbar-fill bg-green-500" style="width:75%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="text-slate-600">Commercial / Office</span>
+              <span class="text-red-500 font-medium">Cooling</span>
+            </div>
+            <div class="pbar"><div class="pbar-fill bg-red-400" style="width:35%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buy vs Rent index -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6">
+        <h3 class="font-semibold text-slate-800 mb-4">Buy vs Rent index by city</h3>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-700 font-medium w-28">Mumbai</span>
+            <span class="text-slate-500 flex-1">Price-to-rent ratio very high</span>
+            <span class="bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full">Rent ✓</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-700 font-medium w-28">Bengaluru</span>
+            <span class="text-slate-500 flex-1">Borderline, yields improving</span>
+            <span class="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-full">Neutral</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-700 font-medium w-28">Delhi NCR</span>
+            <span class="text-slate-500 flex-1">Better capital appreciation</span>
+            <span class="bg-green-50 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">Buy ✓</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-700 font-medium w-28">Hyderabad</span>
+            <span class="text-slate-500 flex-1">Strong IT-driven demand</span>
+            <span class="bg-green-50 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">Buy ✓</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-700 font-medium w-28">Pune</span>
+            <span class="text-slate-500 flex-1">Good rental yields in IT hubs</span>
+            <span class="bg-slate-100 text-slate-600 text-xs font-bold px-2.5 py-1 rounded-full">Neutral</span>
+          </div>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-slate-700 font-medium w-28">Chennai</span>
+            <span class="text-slate-500 flex-1">Steady appreciation, low risk</span>
+            <span class="bg-green-50 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">Buy ✓</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FAQ — Schema SEO Section
+============================================================ -->
+<section id="faq" class="bg-white py-16" aria-labelledby="faq-heading">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-10">
+      <h2 id="faq-heading" class="text-3xl font-bold text-slate-900">Frequently asked questions</h2>
+      <p class="text-slate-500 mt-2">Everything you need to know about buying or renting through bhk.com</p>
+    </div>
+    <div class="space-y-4" itemscope itemtype="https://schema.org/FAQPage">
+      <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <button class="faq-q w-full text-left px-6 py-4 font-semibold text-slate-800 flex justify-between items-center" onclick="toggleFaq(this)" aria-expanded="false">
+          <span itemprop="name">Is bhk.com really zero brokerage?</span>
+          <i class="fa-solid fa-chevron-down text-orange-600 transition-transform" aria-hidden="true"></i>
+        </button>
+        <div class="faq-a hidden px-6 pb-5 text-slate-600 text-sm leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Yes. bhk.com connects buyers and renters directly with property owners. No broker or agent is involved at any stage, so you pay <strong>zero brokerage</strong> — saving you 1–2% of the property value that traditional brokers charge.</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <button class="faq-q w-full text-left px-6 py-4 font-semibold text-slate-800 flex justify-between items-center" onclick="toggleFaq(this)" aria-expanded="false">
+          <span itemprop="name">How do I post my property for free?</span>
+          <i class="fa-solid fa-chevron-down text-orange-600 transition-transform" aria-hidden="true"></i>
+        </button>
+        <div class="faq-a hidden px-6 pb-5 text-slate-600 text-sm leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Click "Post Property" on any page, fill in your property details, upload photos, and submit. Listing is completely free for owners. Your property goes live within a few hours after our verification team reviews it.</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <button class="faq-q w-full text-left px-6 py-4 font-semibold text-slate-800 flex justify-between items-center" onclick="toggleFaq(this)" aria-expanded="false">
+          <span itemprop="name">Are listings RERA approved?</span>
+          <i class="fa-solid fa-chevron-down text-orange-600 transition-transform" aria-hidden="true"></i>
+        </button>
+        <div class="faq-a hidden px-6 pb-5 text-slate-600 text-sm leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">We verify RERA registration for new projects. Each RERA-approved listing is clearly marked with a shield badge. Always ask the owner for the RERA registration ID before making any payment or signing an agreement.</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <button class="faq-q w-full text-left px-6 py-4 font-semibold text-slate-800 flex justify-between items-center" onclick="toggleFaq(this)" aria-expanded="false">
+          <span itemprop="name">Which cities are covered?</span>
+          <i class="fa-solid fa-chevron-down text-orange-600 transition-transform" aria-hidden="true"></i>
+        </button>
+        <div class="faq-a hidden px-6 pb-5 text-slate-600 text-sm leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">bhk.com currently covers Mumbai, Delhi NCR, Bengaluru, Hyderabad, Pune, Chennai, Ahmedabad, Kolkata, Noida, Gurgaon, Navi Mumbai, Thane, and 16 more cities. We add new cities every month — if yours isn't listed, post your property anyway and we'll cover it.</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+        <button class="faq-q w-full text-left px-6 py-4 font-semibold text-slate-800 flex justify-between items-center" onclick="toggleFaq(this)" aria-expanded="false">
+          <span itemprop="name">How do I calculate my home loan EMI?</span>
+          <i class="fa-solid fa-chevron-down text-orange-600 transition-transform" aria-hidden="true"></i>
+        </button>
+        <div class="faq-a hidden px-6 pb-5 text-slate-600 text-sm leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <p itemprop="text">Use our free <a href="#calculator" class="text-orange-600 hover:underline">EMI Calculator</a> above. Enter the property price, your down payment percentage, the bank interest rate, and loan tenure to instantly see your monthly EMI, total interest payable, and a year-by-year repayment schedule.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     POST PROPERTY CTA BANNER
+============================================================ -->
+<section class="bg-gradient-to-r from-orange-600 to-orange-700 py-16" aria-labelledby="cta-heading">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h2 id="cta-heading" class="text-3xl sm:text-4xl font-extrabold text-white">Own a property? List it free.</h2>
+    <p class="text-orange-100 mt-3 text-lg max-w-2xl mx-auto">
+      Reach lakhs of genuine buyers and renters directly. No middlemen, no commissions. 100% free to post.
+    </p>
+    <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="post-property.html" class="bg-white text-orange-600 hover:bg-orange-50 font-bold px-8 py-4 rounded-xl transition shadow-lg text-lg">
+        <i class="fa-solid fa-plus mr-2" aria-hidden="true"></i>Post Your Property Free
+      </a>
+      <a href="tel:+911800000000" class="border-2 border-white/50 text-white hover:bg-white/10 font-semibold px-8 py-4 rounded-xl transition text-lg">
+        <i class="fa-solid fa-phone mr-2" aria-hidden="true"></i>Call Us: 1800-000-0000
+      </a>
+    </div>
+    <p class="text-orange-200 text-sm mt-5">✓ Free listing &nbsp; ✓ Verified buyers &nbsp; ✓ No commission ever &nbsp; ✓ RERA compliant</p>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer class="bg-slate-950 text-slate-400 border-t border-slate-900 pt-16 pb-8" role="contentinfo">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+    <div>
+      <a href="/" class="flex items-center gap-2 mb-4">
+        <div class="bg-orange-600 text-white p-1.5 rounded-lg">
+          <i class="fa-solid fa-building-user text-sm" aria-hidden="true"></i>
+        </div>
+        <span class="text-xl font-bold text-white">bhk<span class="text-orange-500">.com</span></span>
+      </a>
+      <p class="text-sm leading-relaxed">India's growing zero-brokerage residential marketplace. Connect directly with owners — safely and transparently.</p>
+      <div class="flex gap-3 mt-4">
+        <a href="#" class="text-slate-400 hover:text-white transition" aria-label="bhk.com on Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" class="text-slate-400 hover:text-white transition" aria-label="bhk.com on Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" class="text-slate-400 hover:text-white transition" aria-label="bhk.com on Twitter"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#" class="text-slate-400 hover:text-white transition" aria-label="bhk.com on YouTube"><i class="fa-brands fa-youtube"></i></a>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-white font-semibold mb-4">Top Cities</h3>
+      <ul class="space-y-2 text-sm" role="list">
+        <li><a href="/flats-in-mumbai/" class="hover:text-white transition">Flats in Mumbai</a></li>
+        <li><a href="/flats-in-bengaluru/" class="hover:text-white transition">Flats in Bengaluru</a></li>
+        <li><a href="/flats-in-delhi/" class="hover:text-white transition">Flats in Delhi NCR</a></li>
+        <li><a href="/flats-in-hyderabad/" class="hover:text-white transition">Flats in Hyderabad</a></li>
+        <li><a href="/flats-in-pune/" class="hover:text-white transition">Flats in Pune</a></li>
+        <li><a href="/flats-in-chennai/" class="hover:text-white transition">Flats in Chennai</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="text-white font-semibold mb-4">Legal &amp; Trust</h3>
+      <ul class="space-y-2 text-sm" role="list">
+        <li><a href="/rera-compliance/" class="hover:text-white transition">RERA Compliance</a></li>
+        <li><a href="/avoid-scams/" class="hover:text-white transition">Avoid Broker Scams</a></li>
+        <li><a href="/terms/" class="hover:text-white transition">Terms of Service</a></li>
+        <li><a href="/privacy/" class="hover:text-white transition">Privacy Policy</a></li>
+        <li><a href="/sitemap.xml" class="hover:text-white transition">Sitemap</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="text-white font-semibold mb-4">Contact &amp; Support</h3>
+      <ul class="space-y-3 text-sm" role="list">
+        <li><a href="mailto:help@bhk.com" class="hover:text-white transition"><i class="fa-solid fa-envelope mr-2" aria-hidden="true"></i>help@bhk.com</a></li>
+        <li><a href="tel:+911800000000" class="hover:text-white transition"><i class="fa-solid fa-phone mr-2" aria-hidden="true"></i>1800-000-0000 (Free)</a></li>
+        <li><a href="#" class="hover:text-white transition"><i class="fa-brands fa-whatsapp mr-2 text-emerald-500" aria-hidden="true"></i>WhatsApp Support</a></li>
+        <li class="text-slate-500 text-xs mt-2">Mon–Sat, 9 AM – 7 PM IST</li>
+      </ul>
+
+      <div class="mt-5">
+        <p class="text-xs text-slate-500 mb-2">Download App (Coming Soon)</p>
+        <div class="flex gap-2">
+          <span class="bg-slate-800 text-slate-400 text-xs px-3 py-2 rounded-lg flex items-center gap-1">
+            <i class="fa-brands fa-google-play" aria-hidden="true"></i> Google Play
+          </span>
+          <span class="bg-slate-800 text-slate-400 text-xs px-3 py-2 rounded-lg flex items-center gap-1">
+            <i class="fa-brands fa-apple" aria-hidden="true"></i> App Store
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-slate-900 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+    <p>© 2026 bhk.com India. All rights reserved. CIN: U70100MH2024PTC000000</p>
+    <p>Made with <span class="text-orange-500">♥</span> for Indian homebuyers</p>
+  </div>
+</footer>
+
+<!-- Back to top -->
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})"
+  class="fixed bottom-6 right-6 bg-orange-600 hover:bg-orange-700 text-white p-3 rounded-full shadow-lg transition opacity-0 pointer-events-none z-40"
+  aria-label="Back to top">
+  <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+</button>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+/* ---- Scroll progress + back to top ---- */
+window.addEventListener('scroll', () => {
+  const pct = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+  document.getElementById('scroll-progress').style.width = pct + '%';
+  const btn = document.getElementById('back-to-top');
+  if (window.scrollY > 400) { btn.classList.replace('opacity-0','opacity-100'); btn.classList.remove('pointer-events-none'); }
+  else { btn.classList.replace('opacity-100','opacity-0'); btn.classList.add('pointer-events-none'); }
+});
+
+/* ---- Mobile menu ---- */
+function toggleMenu() {
+  const m = document.getElementById('mobile-menu');
+  const h = document.getElementById('hamburger');
+  const open = m.classList.toggle('open');
+  h.setAttribute('aria-expanded', open);
+}
+
+/* ---- Hero search tab switch ---- */
+function switchTab(type) {
+  const buy = document.getElementById('tab-buy');
+  const rent = document.getElementById('tab-rent');
+  const lbl = document.getElementById('budget-label');
+  const sel = document.getElementById('budget-select');
+  if (type === 'buy') {
+    buy.className = 'bg-orange-50 text-orange-700 font-semibold px-4 py-2 rounded-lg text-sm cursor-pointer transition-all';
+    rent.className = 'text-slate-500 hover:text-slate-800 font-medium px-4 py-2 rounded-lg text-sm cursor-pointer transition-all';
+    buy.setAttribute('aria-selected','true'); rent.setAttribute('aria-selected','false');
+    lbl.textContent = 'Budget';
+    sel.innerHTML = `<option>Any Budget</option><option>Under ₹30 Lakhs</option><option>₹30 – ₹70 Lakhs</option><option>₹70 Lakhs – ₹1.5 Cr</option><option>₹1.5 Cr+</option>`;
+  } else {
+    rent.className = 'bg-orange-50 text-orange-700 font-semibold px-4 py-2 rounded-lg text-sm cursor-pointer transition-all';
+    buy.className = 'text-slate-500 hover:text-slate-800 font-medium px-4 py-2 rounded-lg text-sm cursor-pointer transition-all';
+    rent.setAttribute('aria-selected','true'); buy.setAttribute('aria-selected','false');
+    lbl.textContent = 'Monthly Rent';
+    sel.innerHTML = `<option>Any Rent</option><option>Under ₹15,000</option><option>₹15,000 – ₹30,000</option><option>₹30,000 – ₹60,000</option><option>₹60,000+</option>`;
+  }
+}
+
+/* ---- Search ---- */
+function doSearch() {
+  const city = document.getElementById('city-input').value.trim();
+  const bhk = document.getElementById('bhk-select').value;
+  const budget = document.getElementById('budget-select').value;
+  const q = [city, bhk ? bhk+' BHK' : '', budget].filter(Boolean).join(' ');
+  if (q) alert('Searching for: ' + q + '\n\n(Connect to your backend PHP API here!)');
+  else document.getElementById('city-input').focus();
+}
+
+function quickSearch(q) {
+  document.getElementById('city-input').value = q;
+  document.getElementById('city-input').focus();
+}
+
+/* ---- Listing filter ---- */
+function filterListings(type) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter','border-orange-500','text-orange-600'));
+  event.target.classList.add('active-filter','border-orange-500','text-orange-600');
+  document.querySelectorAll('#property-grid article').forEach(card => {
+    card.style.display = (type === 'all' || card.dataset.type === type) ? '' : 'none';
+  });
+}
+
+/* ---- FAQ accordion ---- */
+function toggleFaq(btn) {
+  const answer = btn.nextElementSibling;
+  const icon = btn.querySelector('i');
+  const isOpen = !answer.classList.contains('hidden');
+  // close all
+  document.querySelectorAll('.faq-a').forEach(a => a.classList.add('hidden'));
+  document.querySelectorAll('.faq-q i').forEach(i => i.style.transform = '');
+  document.querySelectorAll('.faq-q').forEach(b => b.setAttribute('aria-expanded','false'));
+  if (!isOpen) {
+    answer.classList.remove('hidden');
+    icon.style.transform = 'rotate(180deg)';
+    btn.setAttribute('aria-expanded','true');
+  }
+}
+
+/* ---- Stat counter animation ---- */
+function animateCounters() {
+  document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+    const target = +el.dataset.target;
+    let cur = 0;
+    const step = Math.ceil(target / 40);
+    const timer = setInterval(() => {
+      cur = Math.min(cur + step, target);
+      el.textContent = cur.toLocaleString('en-IN');
+      if (cur >= target) clearInterval(timer);
+    }, 30);
+  });
+}
+const statObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) { animateCounters(); statObserver.disconnect(); } });
+}, { threshold: 0.5 });
+const statSection = document.querySelector('.stat-num');
+if (statSection) statObserver.observe(statSection.closest('section'));
+
+/* ---- EMI Calculator ---- */
+let balChart = null;
+
+function fmtINR(n) {
+  if (n >= 10000000) return '₹' + (n/10000000).toFixed(2).replace(/\.?0+$/,'') + ' Cr';
+  if (n >= 100000)   return '₹' + Math.round(n/100000) + ' L';
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+}
+
+function calcEmi() {
+  const priceLakh = +document.getElementById('c-price').value;
+  const downPct   = +document.getElementById('c-down').value;
+  const rateAnn   = +document.getElementById('c-rate').value;
+  const yrs       = +document.getElementById('c-tenure').value;
+
+  const price = priceLakh * 100000;
+  const down  = price * downPct / 100;
+  const loan  = price - down;
+  const r     = rateAnn / 12 / 100;
+  const n     = yrs * 12;
+  const emi   = loan * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+  const total = emi * n;
+  const interest = total - loan;
+  const pPct  = Math.round(loan/total*100);
+
+  document.getElementById('c-price-out').textContent  = priceLakh >= 100 ? '₹'+(priceLakh/100).toFixed(2).replace(/\.?0+$/,'')+' Cr' : '₹'+priceLakh+' L';
+  document.getElementById('c-down-out').textContent   = downPct + '%';
+  document.getElementById('c-rate-out').textContent   = rateAnn.toFixed(1) + '%';
+  document.getElementById('c-tenure-out').textContent = yrs + ' years';
+
+  document.getElementById('emi-result').textContent   = '₹' + Math.round(emi).toLocaleString('en-IN');
+  document.getElementById('r-loan').textContent       = fmtINR(loan);
+  document.getElementById('r-down').textContent       = fmtINR(down);
+  document.getElementById('r-interest').textContent   = fmtINR(interest);
+  document.getElementById('r-total').textContent      = fmtINR(total);
+  document.getElementById('r-ppct').textContent       = pPct + '%';
+  document.getElementById('r-ipct').textContent       = (100-pPct) + '%';
+  document.getElementById('bar-principal').style.width = pPct + '%';
+  document.getElementById('bar-interest').style.width  = (100-pPct) + '%';
+
+  /* Balance chart */
+  const labels = [], data = [];
+  let bal = loan;
+  for (let y = 1; y <= yrs; y++) {
+    for (let m = 0; m < 12; m++) { bal = bal*(1+r) - emi; if(bal<0) bal=0; }
+    labels.push('Yr '+y);
+    data.push(Math.round(bal));
+  }
+  if (balChart) balChart.destroy();
+  balChart = new Chart(document.getElementById('balanceChart'), {
+    type: 'line',
+    data: { labels, datasets: [{ label:'Outstanding balance', data, borderColor:'#EA580C', backgroundColor:'rgba(234,88,12,0.08)', fill:true, tension:0.35, pointRadius:3, pointBackgroundColor:'#EA580C', borderWidth:2 }] },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{display:false} },
+      scales: {
+        y: { ticks:{ callback: v => fmtINR(v) }, grid:{ color:'rgba(0,0,0,0.05)' } },
+        x: { ticks:{ autoSkip:true, maxTicksLimit:10 }, grid:{display:false} }
+      }
+    }
+  });
+
+  /* Rate compare */
+  const rates = [7.5, 8.0, 8.5, 9.0, 9.5];
+  document.getElementById('rate-compare').innerHTML = rates.map(ra => {
+    const ri = ra/12/100;
+    const e = Math.round(loan * ri * Math.pow(1+ri,n) / (Math.pow(1+ri,n)-1));
+    const active = Math.abs(ra - rateAnn) < 0.05;
+    return `<div class="bg-slate-50 ${active ? 'border-2 border-orange-500' : 'border border-slate-200'} rounded-xl p-4 text-center">
+      <p class="text-xs text-slate-500 mb-1">${ra}% p.a.</p>
+      <p class="text-lg font-bold ${active ? 'text-orange-600' : 'text-slate-800'}">₹${e.toLocaleString('en-IN')}</p>
+      <p class="text-xs text-slate-400 mt-0.5">/month</p>
+      ${active ? '<p class="text-xs text-orange-500 font-semibold mt-1">Your rate</p>' : ''}
+    </div>`;
+  }).join('');
+}
+
+/* ---- Market Trend Chart ---- */
+function buildTrendChart() {
+  const labels = ['Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26'];
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label:'Mumbai',    data:[100,102,104,105,107,109], borderColor:'#D85A30', tension:0.3, pointRadius:4, fill:false, borderWidth:2 },
+        { label:'Bengaluru', data:[100,101,103,105,106,108], borderColor:'#378ADD', tension:0.3, pointRadius:4, fill:false, borderWidth:2, borderDash:[5,3] },
+        { label:'Delhi NCR', data:[100,101,102,103,105,107], borderColor:'#1D9E75', tension:0.3, pointRadius:4, fill:false, borderWidth:2, borderDash:[2,2] },
+        { label:'Hyderabad', data:[100,102,105,108,110,111], borderColor:'#BA7517', tension:0.3, pointRadius:4, fill:false, borderWidth:2, borderDash:[8,3] }
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{display:false} },
+      scales: {
+        y: { ticks:{ callback: v=>v }, grid:{ color:'rgba(0,0,0,0.05)' }, title:{display:true,text:'Index (Jan=100)',font:{size:11}} },
+        x: { grid:{display:false} }
+      }
+    }
+  });
+}
+
+/* ---- City price table ---- */
+function buildCityTable() {
+  const cities = [
+    { name:'Mumbai',     price:18500, chg:+9.2, spark:[60,65,70,72,80,90,100] },
+    { name:'Bengaluru',  price:7800,  chg:+8.1, spark:[55,60,65,70,78,88,100] },
+    { name:'Delhi NCR',  price:6200,  chg:+7.0, spark:[60,62,66,70,76,85,100] },
+    { name:'Hyderabad',  price:6500,  chg:+11.4, spark:[50,55,62,70,80,92,100] },
+    { name:'Pune',       price:5900,  chg:+5.6, spark:[70,72,75,78,83,90,100] },
+    { name:'Chennai',    price:5200,  chg:+4.1, spark:[75,76,78,82,86,92,100] },
+    { name:'Ahmedabad',  price:4100,  chg:+6.8, spark:[60,63,67,72,80,88,100] },
+    { name:'Kolkata',    price:4800,  chg:+2.9, spark:[80,81,83,85,88,93,100] },
+  ];
+  const maxP = Math.max(...cities.map(c=>c.price));
+  document.getElementById('city-price-table').innerHTML = cities.map(c => {
+    const sparks = c.spark.map(v=>`<span style="height:${Math.round(v/100*22)}px;"></span>`).join('');
+    return `<div class="flex items-center gap-3">
+      <span class="text-sm font-semibold text-slate-700 w-24 shrink-0">${c.name}</span>
+      <div class="flex-1">
+        <div class="pbar"><div class="pbar-fill bg-orange-400" style="width:${Math.round(c.price/maxP*100)}%"></div></div>
+      </div>
+      <span class="text-sm text-slate-600 w-20 text-right shrink-0">₹${c.price.toLocaleString('en-IN')}/sqft</span>
+      <div class="spark shrink-0">${sparks}</div>
+      <span class="text-xs font-bold w-12 text-right shrink-0 ${c.chg>=5?'text-green-600':'text-slate-500'}">+${c.chg}%</span>
+    </div>`;
+  }).join('');
+}
+
+/* ---- Init on load ---- */
+window.addEventListener('DOMContentLoaded', () => {
+  calcEmi();
+  buildTrendChart();
+  buildCityTable();
+});
+</script>
 
 </body>
 </html>
