@@ -883,85 +883,79 @@ async function handleSubmit() {
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
 
   try {
-    /* Collect amenities */
-    const amenities = Array.from(document.querySelectorAll('input[name="amenities"]:checked')).map(x=>x.value);
-    const nearby    = Array.from(document.querySelectorAll('input[name="nearby"]:checked')).map(x=>x.value);
     const purpose   = document.querySelector('input[name="purpose"]:checked').value;
     const prop_type = document.querySelector('input[name="prop_type"]:checked')?.value || 'apartment';
+    const amenities = Array.from(document.querySelectorAll('input[name="amenities"]:checked')).map(x=>x.value);
+    const nearby    = Array.from(document.querySelectorAll('input[name="nearby"]:checked')).map(x=>x.value);
 
-    /* Convert photos to Base64 and store in DB (avoids Supabase Storage CORS on GitHub Pages) */
-    let imageUrls = [];
+    /* Compress photos to small thumbnails before storing */
+    let imageDataUrls = [];
     if (photoFiles.length > 0) {
-      const bar = document.getElementById('upload-bar');
+      const bar  = document.getElementById('upload-bar');
       const fill = document.getElementById('upload-bar-fill');
       bar.style.display = 'block';
       for (let i = 0; i < photoFiles.length; i++) {
         const f = photoFiles[i];
-        const b64 = await new Promise((res, rej) => {
-          const reader = new FileReader();
-          reader.onload  = () => res(reader.result); // data:image/jpeg;base64,...
-          reader.onerror = () => rej(new Error('Failed to read file: ' + f.name));
-          reader.readAsDataURL(f);
+        const thumb = await new Promise((res, rej) => {
+          const img = new Image();
+          img.onload = () => {
+            const MAX = 600;
+            const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+            const canvas = document.createElement('canvas');
+            canvas.width  = Math.round(img.width  * scale);
+            canvas.height = Math.round(img.height * scale);
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            res(canvas.toDataURL('image/jpeg', 0.6));
+          };
+          img.onerror = () => rej(new Error('Could not read: ' + f.name));
+          img.src = URL.createObjectURL(f);
         });
-        imageUrls.push(b64);
+        imageDataUrls.push(thumb);
         fill.style.width = Math.round(((i + 1) / photoFiles.length) * 100) + '%';
       }
     }
 
-    /* Build payload */
+    /* Only send core columns — avoids "column does not exist" errors */
     const payload = {
       purpose,
       prop_type,
-      bhk_type:       document.getElementById('bhk-select').value,
-      furnishing:     document.getElementById('furnishing-select').value,
-      area_sqft:      parseFloat(document.getElementById('area-input').value),
-      carpet_sqft:    parseFloat(document.getElementById('carpet-input').value) || null,
-      floor:          parseInt(document.getElementById('floor-input').value) || null,
-      total_floors:   parseInt(document.getElementById('floors-input').value) || null,
-      property_age:   document.getElementById('age-select').value || null,
-      facing:         document.getElementById('facing-select').value || null,
-      parking:        document.getElementById('parking-select').value,
-      bathrooms:      document.getElementById('bathrooms-select').value,
-      amenities,
-      description:    document.getElementById('description').value,
-      city:           document.getElementById('city-input').value,
-      locality:       document.getElementById('locality-input').value,
-      society_name:   document.getElementById('society-input').value,
-      address:        document.getElementById('address-input').value,
-      pincode:        document.getElementById('pincode-input').value,
-      landmark:       document.getElementById('landmark-input').value,
-      nearby_infra:   nearby,
-      price:          parseFloat(document.getElementById('price-input').value),
-      price_negotiable: document.getElementById('price-negotiable').value,
-      maintenance:    parseFloat(document.getElementById('maintenance-input').value) || 0,
-      /* Sale-specific */
-      possession:     document.getElementById('possession').value,
-      ownership_type: document.getElementById('ownership-type').value,
-      rera_id:        document.getElementById('rera-id').value || null,
-      loan_available: document.getElementById('loan-available').value,
-      /* Rent-specific */
-      security_deposit: parseFloat(document.getElementById('security-deposit').value) || null,
-      available_from: document.getElementById('available-from').value || null,
-      preferred_tenant: document.getElementById('preferred-tenant').value,
-      lock_in:        document.getElementById('lock-in').value,
-      /* Contact */
-      owner_name:     document.getElementById('owner-name').value,
-      owner_phone:    '+91' + document.getElementById('owner-phone').value,
-      owner_email:    document.getElementById('owner-email').value || null,
-      whatsapp_allowed: document.getElementById('whatsapp-check').checked,
-      images:         imageUrls,
-      status:         'pending_review',
-      created_at:     new Date().toISOString()
+      bhk_type:     document.getElementById('bhk-select').value,
+      furnishing:   document.getElementById('furnishing-select').value,
+      area_sqft:    parseFloat(document.getElementById('area-input').value) || null,
+      city:         document.getElementById('city-input').value,
+      locality:     document.getElementById('locality-input').value,
+      society_name: document.getElementById('society-input').value,
+      price:        parseFloat(document.getElementById('price-input').value) || null,
+      description:  document.getElementById('description').value || null,
+      amenities:    amenities,
+      nearby_infra: nearby,
+      owner_name:   document.getElementById('owner-name').value,
+      owner_phone:  '+91' + document.getElementById('owner-phone').value,
+      owner_email:  document.getElementById('owner-email').value || null,
+      images:       imageDataUrls,
+      status:       'pending_review',
+      created_at:   new Date().toISOString()
     };
 
-    const { error } = await db.from('properties').insert([payload]);
-    if (error) throw error;
+    console.log('Sending to Supabase:', JSON.stringify(payload).substring(0, 300));
 
+    const { data, error } = await db.from('properties').insert([payload]).select();
+
+    if (error) {
+      console.error('Supabase insert error:', error);
+      throw new Error(
+        (error.message || 'DB error') +
+        (error.details ? ' — ' + error.details : '') +
+        (error.hint   ? ' — Hint: ' + error.hint : '')
+      );
+    }
+
+    console.log('Listing saved successfully:', data);
     document.getElementById('success-overlay').classList.add('show');
 
   } catch (e) {
-    console.error(e);
-    showError('Submission failed: ' + (e.message || 'Please try again.'));
+    console.error('Full error:', e);
+    showError('Error: ' + (e.message || 'Unknown. Press F12 > Console for details.'));
     btn.disabled = false;
     btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit & Go Live';
   }
