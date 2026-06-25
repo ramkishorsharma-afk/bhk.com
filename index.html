@@ -1040,17 +1040,87 @@ function switchTab(type) {
 
 /* ---- Search ---- */
 function doSearch() {
-  const city = document.getElementById('city-input').value.trim();
-  const bhk = document.getElementById('bhk-select').value;
-  const budget = document.getElementById('budget-select').value;
-  const q = [city, bhk ? bhk+' BHK' : '', budget].filter(Boolean).join(' ');
-  if (q) alert('Searching for: ' + q + '\n\n(Connect to your backend PHP API here!)');
-  else document.getElementById('city-input').focus();
+  const cityRaw = document.getElementById('city-input').value.trim().toLowerCase();
+  const bhk     = document.getElementById('bhk-select').value;
+  const budget  = document.getElementById('budget-select').value;
+
+  /* City → page map */
+  const cityPages = {
+    'mumbai':'flats-in-mumbai/', 'andheri':'flats-in-mumbai/', 'bandra':'flats-in-mumbai/',
+    'powai':'flats-in-mumbai/', 'thane':'flats-in-mumbai/', 'navi mumbai':'flats-in-mumbai/',
+    'delhi':'flats-in-delhi/', 'noida':'flats-in-delhi/', 'gurgaon':'flats-in-delhi/',
+    'gurugram':'flats-in-delhi/', 'faridabad':'flats-in-delhi/', 'dwarka':'flats-in-delhi/',
+    'bengaluru':'flats-in-bengaluru/', 'bangalore':'flats-in-bengaluru/',
+    'whitefield':'flats-in-bengaluru/', 'koramangala':'flats-in-bengaluru/',
+    'hyderabad':'flats-in-hyderabad/', 'gachibowli':'flats-in-hyderabad/',
+    'hitec city':'flats-in-hyderabad/', 'banjara hills':'flats-in-hyderabad/',
+    'pune':'flats-in-pune/', 'hinjewadi':'flats-in-pune/', 'baner':'flats-in-pune/',
+    'viman nagar':'flats-in-pune/',
+    'chennai':'flats-in-chennai/', 'anna nagar':'flats-in-chennai/', 'omr':'flats-in-chennai/',
+    'ahmedabad':'flats-in-ahmedabad/', 'sg highway':'flats-in-ahmedabad/',
+    'kolkata':'flats-in-kolkata/', 'new town':'flats-in-kolkata/', 'salt lake':'flats-in-kolkata/',
+  };
+
+  /* If city matches a page → go there */
+  for (const [key, page] of Object.entries(cityPages)) {
+    if (cityRaw.includes(key)) {
+      window.location.href = page;
+      return;
+    }
+  }
+
+  /* Otherwise scroll to listings and filter by BHK */
+  if (!cityRaw && !bhk && !budget) {
+    document.getElementById('city-input').focus();
+    document.getElementById('city-input').placeholder = 'Please enter a city or locality...';
+    return;
+  }
+
+  /* Scroll to listings section */
+  document.getElementById('listings').scrollIntoView({ behavior: 'smooth' });
+
+  /* Filter cards by BHK if selected */
+  if (bhk) {
+    setTimeout(() => {
+      document.querySelectorAll('#property-grid article').forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(bhk + ' bhk') ? '' : 'none';
+      });
+      /* Show result count */
+      const visible = document.querySelectorAll('#property-grid article:not([style*="none"])').length;
+      showSearchResult(cityRaw, bhk, visible);
+    }, 600);
+  } else {
+    setTimeout(() => showSearchResult(cityRaw, bhk, 6), 600);
+  }
+}
+
+function showSearchResult(city, bhk, count) {
+  const old = document.getElementById('search-result-bar');
+  if (old) old.remove();
+  const bar = document.createElement('div');
+  bar.id = 'search-result-bar';
+  bar.className = 'bg-orange-50 border border-orange-200 rounded-xl px-5 py-3 mb-6 flex items-center justify-between text-sm';
+  bar.innerHTML = \`<span class="text-slate-700"><strong class="text-orange-600">\${count} properties</strong> found\${city ? ' for <strong>'+city+'</strong>' : ''}\${bhk ? ', <strong>'+bhk+' BHK</strong>' : ''}</span>
+    <button onclick="clearSearch()" class="text-slate-400 hover:text-slate-700 text-xs">✕ Clear</button>\`;
+  const grid = document.getElementById('property-grid');
+  grid.parentNode.insertBefore(bar, grid);
+}
+
+function clearSearch() {
+  document.getElementById('city-input').value = '';
+  document.getElementById('bhk-select').value = '';
+  document.getElementById('budget-select').value = '';
+  document.querySelectorAll('#property-grid article').forEach(c => c.style.display = '');
+  const bar = document.getElementById('search-result-bar');
+  if (bar) bar.remove();
 }
 
 function quickSearch(q) {
   document.getElementById('city-input').value = q;
   document.getElementById('city-input').focus();
+  /* Auto trigger search after a moment */
+  setTimeout(doSearch, 200);
 }
 
 /* ---- Listing filter ---- */
