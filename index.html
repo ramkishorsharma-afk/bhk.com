@@ -75,9 +75,10 @@
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Chart.js -->
+  <!-- Chart.js: loaded synchronously so it is ready before DOMContentLoaded -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
   <style>
@@ -149,6 +150,8 @@
       <a href="#calculator" class="hover:text-orange-600 transition">EMI Calculator</a>
       <a href="#trends" class="hover:text-orange-600 transition">Market Trends</a>
       <a href="#cities" class="hover:text-orange-600 transition">Cities</a>
+      <a href="flats-in-haryana/" class="hover:text-orange-600 transition">Haryana</a>
+      <a href="vastu-kundli/" class="hover:text-orange-600 transition">🔯 Vastu</a>
       <a href="post-property.html" class="hover:text-orange-600 transition">Post Property</a>
     </nav>
 
@@ -324,13 +327,23 @@
       <p class="text-slate-500 mt-1">Direct listings — no agent, no commission.</p>
     </div>
     <div class="flex gap-2 flex-wrap">
-      <button onclick="filterListings('all')" class="filter-btn text-sm px-4 py-2 rounded-lg border border-slate-200 hover:border-orange-500 hover:text-orange-600 transition active-filter">All</button>
-      <button onclick="filterListings('sale')" class="filter-btn text-sm px-4 py-2 rounded-lg border border-slate-200 hover:border-orange-500 hover:text-orange-600 transition">For Sale</button>
-      <button onclick="filterListings('rent')" class="filter-btn text-sm px-4 py-2 rounded-lg border border-slate-200 hover:border-orange-500 hover:text-orange-600 transition">For Rent</button>
+      <button onclick="switchFilter(this,'all')" data-filter="all" class="filter-btn text-sm px-4 py-2 rounded-lg border border-slate-200 hover:border-orange-500 hover:text-orange-600 transition active-filter">All</button>
+      <button onclick="switchFilter(this,'sale')" data-filter="sale" class="filter-btn text-sm px-4 py-2 rounded-lg border border-slate-200 hover:border-orange-500 hover:text-orange-600 transition">For Sale</button>
+      <button onclick="switchFilter(this,'rent')" data-filter="rent" class="filter-btn text-sm px-4 py-2 rounded-lg border border-slate-200 hover:border-orange-500 hover:text-orange-600 transition">For Rent</button>
     </div>
   </div>
 
   <!-- Property Grid -->
+  <div id="listings-status" class="hidden mb-6 text-center py-8">
+    <i class="fa-solid fa-spinner fa-spin text-orange-500 text-2xl mb-3 block" aria-hidden="true"></i>
+    <p class="text-slate-500 text-sm">Loading latest listings...</p>
+  </div>
+  <div id="no-listings" class="hidden mb-6 text-center py-12 bg-white rounded-2xl border border-slate-200">
+    <i class="fa-solid fa-house-circle-exclamation text-slate-300 text-4xl mb-3 block" aria-hidden="true"></i>
+    <p class="text-slate-600 font-semibold">No listings found</p>
+    <p class="text-slate-400 text-sm mt-1">Be the first to post a property!</p>
+    <a href="post-property.html" class="inline-block mt-4 bg-orange-600 text-white px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-orange-700 transition">Post Property Free</a>
+  </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" id="property-grid" role="list">
 
     <!-- Card 1 -->
@@ -522,10 +535,10 @@
   </div>
 
   <!-- View All CTA -->
-  <div class="text-center mt-12">
-    <a href="#" class="inline-flex items-center gap-2 bg-white border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-bold px-8 py-3 rounded-xl transition group">
-      View All Listings <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition" aria-hidden="true"></i>
-    </a>
+  <div class="text-center mt-12" id="load-more-wrap" style="display:none;">
+    <button onclick="loadMoreListings()" id="load-more-btn" class="inline-flex items-center gap-2 bg-white border-2 border-orange-600 text-orange-600 hover:bg-orange-600 hover:text-white font-bold px-8 py-3 rounded-xl transition group">
+      Load More Listings <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition" aria-hidden="true"></i>
+    </button>
   </div>
 </main>
 
@@ -580,6 +593,11 @@
         <div class="text-2xl mb-2" aria-hidden="true">🎭</div>
         <p class="text-white font-semibold text-sm">Kolkata</p>
         <p class="text-slate-400 group-hover:text-orange-100 text-xs mt-0.5">510 listings</p>
+      </a>
+      <a href="flats-in-haryana/" class="group bg-orange-700 hover:bg-orange-600 rounded-xl p-4 text-center transition cursor-pointer block">
+        <div class="text-2xl mb-2" aria-hidden="true">🌾</div>
+        <p class="text-white font-semibold text-sm">Haryana</p>
+        <p class="text-orange-200 group-hover:text-orange-100 text-xs mt-0.5">All cities</p>
       </a>
     </div>
   </div>
@@ -832,6 +850,35 @@
   </div>
 </section>
 
+
+<!-- ============================================================
+     VASTU KUNDLI PROMO SECTION
+============================================================ -->
+<section class="py-12 bg-gradient-to-r from-amber-950 to-orange-950" aria-labelledby="vastu-heading">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row items-center gap-8">
+      <div class="flex-1 text-center md:text-left">
+        <span class="text-amber-400 text-xs font-bold uppercase tracking-wider">New Feature</span>
+        <h2 id="vastu-heading" class="text-2xl sm:text-3xl font-extrabold text-white mt-2 mb-3">
+          🔯 Vastu &amp; Kundli Property Advisor
+        </h2>
+        <p class="text-amber-200 text-sm max-w-lg">Enter your date, time and place of birth to get a personalised Janam Kundli analysis. Find out which direction of flat, plot or house is most auspicious for you as per Vedic astrology and Vastu Shastra.</p>
+        <div class="flex flex-wrap gap-3 mt-5 justify-center md:justify-start">
+          <span class="text-xs text-amber-300"><i class="fa-solid fa-check mr-1 text-amber-500"></i>Lagna calculation</span>
+          <span class="text-xs text-amber-300"><i class="fa-solid fa-check mr-1 text-amber-500"></i>Navgraha positions</span>
+          <span class="text-xs text-amber-300"><i class="fa-solid fa-check mr-1 text-amber-500"></i>Vastu direction</span>
+          <span class="text-xs text-amber-300"><i class="fa-solid fa-check mr-1 text-amber-500"></i>Property muhurat</span>
+        </div>
+      </div>
+      <div class="shrink-0">
+        <a href="vastu-kundli/" class="inline-flex items-center gap-3 bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold px-8 py-4 rounded-2xl transition text-base shadow-lg shadow-amber-900/50">
+          <span class="text-2xl">🧭</span> Get Your Vastu Analysis Free
+        </a>
+        <p class="text-amber-400 text-xs text-center mt-2">Based on Vedic astrology · Takes 30 seconds</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ============================================================
      FAQ — Schema SEO Section
@@ -1124,6 +1171,12 @@ function quickSearch(q) {
 }
 
 /* ---- Listing filter ---- */
+function switchFilter(btn, type) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter','border-orange-500','text-orange-600'));
+  btn.classList.add('active-filter','border-orange-500','text-orange-600');
+  loadListings(type, true);
+}
+
 function filterListings(type) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter','border-orange-500','text-orange-600'));
   event.target.classList.add('active-filter','border-orange-500','text-orange-600');
@@ -1215,7 +1268,7 @@ function calcEmi() {
     labels.push('Yr '+y);
     data.push(Math.round(bal));
   }
-  if (balChart) balChart.destroy();
+  if (balChart) { try { balChart.destroy(); } catch(e){} } balChart = null;
   balChart = new Chart(document.getElementById('balanceChart'), {
     type: 'line',
     data: { labels, datasets: [{ label:'Outstanding balance', data, borderColor:'#EA580C', backgroundColor:'rgba(234,88,12,0.08)', fill:true, tension:0.35, pointRadius:3, pointBackgroundColor:'#EA580C', borderWidth:2 }] },
@@ -1245,6 +1298,9 @@ function calcEmi() {
 
 /* ---- Market Trend Chart ---- */
 function buildTrendChart() {
+  const canvas = document.getElementById('trendChart');
+  if (!canvas || canvas._chartInited) return;
+  canvas._chartInited = true;
   const labels = ['Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26'];
   new Chart(document.getElementById('trendChart'), {
     type: 'line',
@@ -1295,10 +1351,177 @@ function buildCityTable() {
 }
 
 /* ---- Init on load ---- */
+/* ---- Supabase ---- */
+const SUPA_URL = "https://pyjejtxzttyqpafzjzhc.supabase.co";
+const SUPA_KEY = "sb_publishable_vT9PR_BQqZk9F6E4wbd2kg_uIyW8ouJ";
+const db = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+let allListings = [];
+let currentOffset = 0;
+const PAGE_SIZE = 6;
+
+/* ---- Format price nicely ---- */
+function fmtPrice(p, purpose) {
+  if (!p) return 'Price on request';
+  if (purpose === 'rent') return '\u20B9' + p.toLocaleString('en-IN') + '/mo';
+  if (p >= 10000000) return '\u20B9' + (p/10000000).toFixed(2).replace(/\.?0+$/,'') + ' Crore';
+  if (p >= 100000)   return '\u20B9' + Math.round(p/100000) + ' Lakhs';
+  return '\u20B9' + p.toLocaleString('en-IN');
+}
+
+/* ---- Build a property card HTML ---- */
+function buildCard(p) {
+  const isRent  = p.purpose === 'rent';
+  const badge   = isRent ? 'bg-blue-600' : 'bg-orange-600';
+  const label   = isRent ? 'For Rent' : 'For Sale';
+  const price   = fmtPrice(p.price, p.purpose);
+  const bhk     = p.bhk_type ? p.bhk_type + ' BHK' : '';
+  const area    = p.area_sqft ? p.area_sqft + ' sqft' : '';
+  const loc     = [p.locality, p.city].filter(Boolean).join(', ');
+  const society = p.society_name || '';
+
+  /* Use first uploaded image or fallback */
+  let imgSrc = 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=60';
+  if (p.images && p.images.length > 0 && p.images[0].startsWith('data:')) {
+    imgSrc = p.images[0];
+  }
+
+  const amenityIcons = (p.amenities || []).slice(0,3).map(a => {
+    const map = {lift:'elevator',gym:'dumbbell',pool:'water-ladder',security:'shield-halved',
+                 garden:'seedling',clubhouse:'building-columns',cctv:'video',wifi:'wifi',
+                 gated:'lock',powerbackup:'bolt'};
+    return map[a] ? `<span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full"><i class="fa-solid fa-${map[a]} mr-1"></i>${a}</span>` : '';
+  }).join('');
+
+  return `
+  <article class="prop-card bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 group" data-type="${p.purpose || 'sale'}" role="listitem">
+    <div class="relative h-56 bg-slate-200 overflow-hidden">
+      <img src="${imgSrc}" alt="${bhk} ${p.prop_type || 'flat'} ${isRent ? 'for rent' : 'for sale'} in ${loc}"
+        class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" width="800" height="450"
+        onerror="this.src='https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=60'">
+      <span class="${badge} absolute top-4 left-4 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">${label}</span>
+      <button class="absolute top-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full transition" aria-label="Save property">
+        <i class="fa-regular fa-heart text-slate-600" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="p-6">
+      <h3 class="text-2xl font-bold text-slate-900">${price}</h3>
+      <p class="text-base font-semibold text-slate-700 mt-1">${bhk} ${p.prop_type || 'Apartment'}${p.furnishing ? ' · '+p.furnishing : ''}</p>
+      <p class="text-slate-500 text-sm flex items-center gap-1 mt-1">
+        <i class="fa-solid fa-location-dot text-orange-600" aria-hidden="true"></i>
+        <span>${society ? society+', ' : ''}${loc}</span>
+      </p>
+      ${amenityIcons ? `<div class="flex gap-1 flex-wrap mt-2">${amenityIcons}</div>` : ''}
+      <div class="flex items-center justify-between border-t border-slate-100 mt-4 pt-4 text-slate-500 text-sm font-medium">
+        ${bhk ? `<span class="flex items-center gap-1.5"><i class="fa-solid fa-bed text-orange-600"></i> ${bhk}</span>` : ''}
+        ${area ? `<span class="flex items-center gap-1.5"><i class="fa-solid fa-ruler-combined text-orange-600"></i> ${area}</span>` : ''}
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-user-check text-orange-600"></i> Owner</span>
+      </div>
+      <button onclick="contactOwner('${p.owner_name || 'Owner'}','${p.owner_phone || ''}','${p.owner_email || ''}')"
+        class="mt-4 w-full block text-center bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold py-2.5 rounded-xl transition text-sm cursor-pointer">
+        Contact Owner
+      </button>
+    </div>
+  </article>`;
+}
+
+/* ---- Contact owner modal ---- */
+function contactOwner(name, phone, email) {
+  const old = document.getElementById('contact-modal');
+  if (old) old.remove();
+  const m = document.createElement('div');
+  m.id = 'contact-modal';
+  m.className = 'fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4';
+  m.innerHTML = `
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="font-bold text-slate-900 text-lg">Contact Owner</h3>
+        <button onclick="document.getElementById('contact-modal').remove()" class="text-slate-400 hover:text-slate-700 text-xl">&times;</button>
+      </div>
+      <div class="bg-slate-50 rounded-xl p-4 mb-4">
+        <p class="font-semibold text-slate-800">${name}</p>
+        ${phone ? `<a href="tel:${phone}" class="flex items-center gap-2 text-orange-600 font-bold text-lg mt-2 hover:text-orange-700"><i class="fa-solid fa-phone"></i> ${phone}</a>` : ''}
+        ${email ? `<a href="mailto:${email}" class="flex items-center gap-2 text-slate-600 text-sm mt-1 hover:text-orange-600"><i class="fa-solid fa-envelope"></i> ${email}</a>` : ''}
+      </div>
+      ${phone ? `
+      <div class="grid grid-cols-2 gap-3">
+        <a href="tel:${phone}" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-xl text-center text-sm transition">
+          <i class="fa-solid fa-phone mr-1"></i> Call Now
+        </a>
+        <a href="https://wa.me/${phone.replace(/[^0-9]/g,'')}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl text-center text-sm transition">
+          <i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp
+        </a>
+      </div>` : ''}
+      <p class="text-xs text-slate-400 text-center mt-3">This owner listed directly on bhk.com — zero brokerage.</p>
+    </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click', e => { if(e.target === m) m.remove(); });
+}
+
+/* ---- Load listings from Supabase ---- */
+async function loadListings(filter = 'all', reset = true) {
+  if (reset) { currentOffset = 0; allListings = []; }
+
+  const grid   = document.getElementById('property-grid');
+  const status = document.getElementById('listings-status');
+  const noList = document.getElementById('no-listings');
+  const moreWrap = document.getElementById('load-more-wrap');
+
+  if (reset) {
+    grid.innerHTML = '';
+    status.classList.remove('hidden');
+    noList.classList.add('hidden');
+    if (moreWrap) moreWrap.style.display = 'none';
+  }
+
+  try {
+    let query = db.from('properties')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(currentOffset, currentOffset + PAGE_SIZE - 1);
+
+    if (filter !== 'all') query = query.eq('purpose', filter);
+
+    const { data, error } = await query;
+    status.classList.add('hidden');
+
+    if (error) throw error;
+
+    if (data && data.length > 0) {
+      data.forEach(p => {
+        grid.insertAdjacentHTML('beforeend', buildCard(p));
+      });
+      currentOffset += data.length;
+      if (moreWrap) moreWrap.style.display = data.length === PAGE_SIZE ? '' : 'none';
+      noList.classList.add('hidden');
+    } else if (reset) {
+      noList.classList.remove('hidden');
+    }
+  } catch(e) {
+    console.error('Failed to load listings:', e);
+    status.classList.add('hidden');
+    grid.innerHTML = '<p class="col-span-3 text-center text-slate-400 py-8">Could not load listings. Please refresh.</p>';
+  }
+}
+
+function loadMoreListings() {
+  const activeFilter = document.querySelector('.filter-btn.active-filter')?.dataset?.filter || 'all';
+  loadListings(activeFilter, false);
+}
+
 window.addEventListener('DOMContentLoaded', () => {
-  calcEmi();
-  buildTrendChart();
-  buildCityTable();
+  // Ensure Chart.js is available before calling chart functions
+  function initCharts() {
+    if (typeof Chart === 'undefined') {
+      setTimeout(initCharts, 100);
+      return;
+    }
+    calcEmi();
+    buildTrendChart();
+    buildCityTable();
+  }
+  initCharts();
+  loadListings('all');
 });
 </script>
 
