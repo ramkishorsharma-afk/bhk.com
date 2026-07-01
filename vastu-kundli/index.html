@@ -16,7 +16,7 @@
     "url": "https://bhk.com/vastu-kundli/"
   }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root { --orange: #EA580C; --saffron: #FF6B00; --maroon: #7B1E1E; --gold: #C9A84C; }
@@ -145,37 +145,48 @@
           <input type="time" id="tob" required class="w-full px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
           <p class="text-xs text-slate-400 mt-1">24-hour format, IST</p>
         </div>
-        <div>
-          <label for="pob" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+        <div style="position:relative;">
+          <label for="pob-input" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
             <i class="fa-solid fa-location-dot text-amber-600 mr-1"></i>Place of Birth (Janma Sthan) <span class="text-red-500">*</span>
           </label>
-          <select id="pob" required class="w-full px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-sm">
-            <option value="">Select city</option>
-            <option value="28.6139,77.2090">Delhi (28.61°N, 77.20°E)</option>
-            <option value="19.0760,72.8777">Mumbai (19.07°N, 72.87°E)</option>
-            <option value="12.9716,77.5946">Bengaluru (12.97°N, 77.59°E)</option>
-            <option value="17.3850,78.4867">Hyderabad (17.38°N, 78.48°E)</option>
-            <option value="18.5204,73.8567">Pune (18.52°N, 73.85°E)</option>
-            <option value="13.0827,80.2707">Chennai (13.08°N, 80.27°E)</option>
-            <option value="22.5726,88.3639">Kolkata (22.57°N, 88.36°E)</option>
-            <option value="23.0225,72.5714">Ahmedabad (23.02°N, 72.57°E)</option>
-            <option value="28.9845,76.0901">Rohtak (28.98°N, 76.09°E)</option>
-            <option value="30.7333,76.7794">Chandigarh (30.73°N, 76.77°E)</option>
-            <option value="29.0588,76.0856">Jhajjar (29.05°N, 76.08°E)</option>
-            <option value="28.4595,77.0266">Gurgaon (28.45°N, 77.02°E)</option>
-            <option value="28.4089,77.3178">Faridabad (28.40°N, 77.31°E)</option>
-            <option value="29.3909,76.9635">Panipat (29.39°N, 76.96°E)</option>
-            <option value="29.9457,76.8172">Karnal (29.94°N, 76.81°E)</option>
-            <option value="30.1290,74.9421">Sirsa (30.12°N, 74.94°E)</option>
-            <option value="29.1492,75.7217">Hisar (29.14°N, 75.72°E)</option>
-            <option value="28.3670,75.5890">Bhiwani (28.36°N, 75.58°E)</option>
-            <option value="27.8974,76.5878">Rewari (27.89°N, 76.58°E)</option>
-            <option value="26.9124,75.7873">Jaipur</option>
-            <option value="22.3072,73.1812">Vadodara</option>
-            <option value="21.1702,72.8311">Surat</option>
-            <option value="26.8467,80.9462">Lucknow</option>
-            <option value="25.3176,82.9739">Varanasi</option>
-          </select>
+          <!-- Hidden fields that store resolved lat/lng -->
+          <input type="hidden" id="pob-lat" value="">
+          <input type="hidden" id="pob-lng" value="">
+          <input type="hidden" id="pob-tz"  value="5.5">
+
+          <div style="position:relative;">
+            <input type="text" id="pob-input" autocomplete="off"
+              placeholder="Type any city — e.g. Rohtak, Dubai, London..."
+              class="w-full px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-sm pr-10"
+              oninput="onCityType(this.value)"
+              onkeydown="onCityKeydown(event)">
+            <!-- status icons -->
+            <span id="pob-spinner" style="display:none;position:absolute;right:12px;top:13px;">
+              <i class="fa-solid fa-spinner fa-spin text-amber-500 text-sm"></i>
+            </span>
+            <span id="pob-tick" style="display:none;position:absolute;right:12px;top:13px;">
+              <i class="fa-solid fa-circle-check text-green-500 text-sm"></i>
+            </span>
+          </div>
+
+          <!-- Autocomplete dropdown -->
+          <div id="pob-dropdown"
+            style="display:none;position:absolute;top:100%;left:0;right:0;z-index:999;
+                   background:white;border:1.5px solid #D97706;border-radius:12px;
+                   box-shadow:0 8px 24px rgba(0,0,0,0.12);max-height:220px;overflow-y:auto;margin-top:4px;">
+          </div>
+
+          <!-- Confirmed city badge -->
+          <div id="pob-confirmed" style="display:none;margin-top:6px;"
+            class="flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-xs text-green-800">
+            <i class="fa-solid fa-map-pin text-green-600"></i>
+            <span id="pob-confirmed-text"></span>
+            <button onclick="clearCity()" style="margin-left:auto;color:#6B7280;font-size:11px;" title="Clear">✕</button>
+          </div>
+
+          <p class="text-xs text-slate-400 mt-1">
+            Search any city worldwide — coordinates are auto-fetched for accurate calculation
+          </p>
         </div>
       </div>
 
@@ -429,8 +440,13 @@ const HOUSE_CENTERS = [
 ];
 
 /* ---- Simple Lagna calculation ---- */
-function calcLagna(dateStr, timeStr, lat, lng) {
-  const dt = new Date(dateStr + 'T' + timeStr + ':00+05:30'); // IST
+function calcLagna(dateStr, timeStr, lat, lng, tzHours) {
+  tzHours = tzHours || 5.5; // default IST
+  const sign = tzHours >= 0 ? '+' : '-';
+  const absHz = Math.abs(tzHours);
+  const hh = String(Math.floor(absHz)).padStart(2,'0');
+  const mm = String(Math.round((absHz % 1) * 60)).padStart(2,'0');
+  const dt = new Date(dateStr + 'T' + timeStr + ':00' + sign + hh + ':' + mm);
   const jd = (dt / 86400000) + 2440587.5;
 
   // Approx sidereal time at Greenwich
@@ -511,15 +527,15 @@ const MUHURATS = [
 async function generateKundli() {
   const dob  = document.getElementById('dob').value;
   const tob  = document.getElementById('tob').value;
-  const pob  = document.getElementById('pob').value;
+  const lat  = parseFloat(document.getElementById('pob-lat').value);
+  const lng  = parseFloat(document.getElementById('pob-lng').value);
+  const pobName = document.getElementById('pob-input').value.trim();
+  const propType = document.querySelector('input[name="prop_interest"]:checked').value;
 
-  if (!dob || !tob || !pob) {
-    alert('Please fill in your Date of Birth, Time of Birth and Place of Birth.');
-    return;
-  }
-
-  const [lat, lng] = pob.split(',').map(Number);
-  const propType   = document.querySelector('input[name="prop_interest"]:checked').value;
+  if (!dob) { showFormError('Please enter your Date of Birth.'); return; }
+  if (!tob) { showFormError('Please enter your Time of Birth.'); return; }
+  if (!pobName) { showFormError('Please enter your Place of Birth.'); return; }
+  if (!lat || !lng) { showFormError('Please select a city from the dropdown suggestions so we can find its coordinates.'); return; }
 
   // Show loading
   document.getElementById('loading-state').classList.remove('hidden');
@@ -545,12 +561,15 @@ async function generateKundli() {
   /* ---- Render birth summary ---- */
   const dobDate  = new Date(dob);
   const weekdays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const tzOffset = parseFloat(document.getElementById('pob-tz').value) || 5.5;
   document.getElementById('birth-summary').innerHTML = `
     <div><p class="text-amber-200 text-xs mb-0.5">Date of Birth</p><p class="font-bold">${dobDate.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</p></div>
     <div><p class="text-amber-200 text-xs mb-0.5">Day (Var)</p><p class="font-bold">${weekdays[dobDate.getDay()]}</p></div>
+    <div><p class="text-amber-200 text-xs mb-0.5">Place of Birth</p><p class="font-bold">${pobName}</p></div>
+    <div><p class="text-amber-200 text-xs mb-0.5">Coordinates</p><p class="font-bold text-amber-300 text-xs">${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E</p></div>
     <div><p class="text-amber-200 text-xs mb-0.5">Lagna (Ascendant)</p><p class="font-bold">${lagnaRashiName}</p></div>
     <div><p class="text-amber-200 text-xs mb-0.5">Lagna Lord</p><p class="font-bold">${lagnaLord}</p></div>
-    <div><p class="text-amber-200 text-xs mb-0.5">Time of Birth</p><p class="font-bold">${tob} IST</p></div>
+    <div><p class="text-amber-200 text-xs mb-0.5">Time of Birth</p><p class="font-bold">${tob} (UTC+${tzOffset})</p></div>
     <div><p class="text-amber-200 text-xs mb-0.5">Property Direction</p><p class="font-bold text-amber-300">${dirInfo.best}</p></div>`;
 
   /* ---- Render graha table ---- */
@@ -660,6 +679,259 @@ async function generateKundli() {
   document.getElementById('results-section').classList.add('fade-in');
   document.getElementById('generate-btn').disabled = false;
   document.getElementById('results-section').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ===== CITY SEARCH + GEOCODING ENGINE ===== */
+
+// Timezone offset lookup by country code (major ones)
+const TZ_BY_COUNTRY = {
+  IN:5.5, PK:5, BD:6, LK:5.5, NP:5.75, BT:6, MM:6.5, TH:7, VN:7, CN:8,
+  JP:9, KR:9, SG:8, MY:8, ID:7, AU:10, NZ:12,
+  GB:0, FR:1, DE:1, IT:1, ES:1, NL:1, BE:1, CH:1, AT:1, PL:1,
+  RU:3, UA:2, TR:3, SA:3, AE:4, IR:3.5, IQ:3, KW:3, QA:3, BH:3, OM:4,
+  EG:2, ZA:2, KE:3, NG:1, GH:0, MA:1,
+  US:-5, CA:-5, MX:-6, BR:-3, AR:-3, CL:-4, CO:-5, PE:-5,
+  DEFAULT: 5.5
+};
+
+let searchTimer = null;
+let selectedCity = null;
+let currentHighlight = -1;
+let lastResults = [];
+
+function onCityType(val) {
+  // Reset confirmed state
+  document.getElementById('pob-lat').value = '';
+  document.getElementById('pob-lng').value = '';
+  document.getElementById('pob-tick').style.display = 'none';
+  document.getElementById('pob-confirmed').style.display = 'none';
+  selectedCity = null;
+  currentHighlight = -1;
+
+  if (!val || val.length < 2) {
+    closeDropdown();
+    return;
+  }
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => searchCity(val), 350);
+}
+
+function onCityKeydown(e) {
+  const items = document.querySelectorAll('#pob-dropdown .city-result-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    currentHighlight = Math.min(currentHighlight + 1, items.length - 1);
+    highlightItem(items, currentHighlight);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    currentHighlight = Math.max(currentHighlight - 1, 0);
+    highlightItem(items, currentHighlight);
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (currentHighlight >= 0 && items[currentHighlight]) {
+      items[currentHighlight].click();
+    }
+  } else if (e.key === 'Escape') {
+    closeDropdown();
+  }
+}
+
+function highlightItem(items, idx) {
+  items.forEach((item, i) => {
+    item.style.background = i === idx ? '#FFF7ED' : '';
+    item.style.color = i === idx ? '#EA580C' : '';
+  });
+  if (items[idx]) items[idx].scrollIntoView({ block: 'nearest' });
+}
+
+async function searchCity(query) {
+  const spinner = document.getElementById('pob-spinner');
+  spinner.style.display = 'block';
+
+  try {
+    // Use OpenStreetMap Nominatim — free, no API key, supports every city worldwide
+    const url = `https://nominatim.openstreetmap.org/search?` +
+      `q=${encodeURIComponent(query)}&format=json&limit=8&addressdetails=1&accept-language=en`;
+
+    const res = await fetch(url, {
+      headers: { 'Accept-Language': 'en', 'User-Agent': 'bhk.com/vastu-kundli' }
+    });
+    const data = await res.json();
+    spinner.style.display = 'none';
+
+    if (!data || data.length === 0) {
+      showDropdown([{ display: '🔍 No results found. Try a different spelling.', disabled: true }]);
+      return;
+    }
+
+    // Format results
+    lastResults = data.map(place => {
+      const addr = place.address || {};
+      const city = addr.city || addr.town || addr.village || addr.county || addr.state || place.display_name.split(',')[0];
+      const country = addr.country || '';
+      const state = addr.state || '';
+      const countryCode = (addr.country_code || 'IN').toUpperCase();
+      const tz = TZ_BY_COUNTRY[countryCode] || TZ_BY_COUNTRY.DEFAULT;
+      const displayFull = [city, state, country].filter(Boolean).join(', ');
+      return {
+        display: displayFull,
+        city,
+        lat: parseFloat(place.lat),
+        lng: parseFloat(place.lon),
+        tz,
+        countryCode,
+        type: place.type || place.class
+      };
+    });
+
+    showDropdown(lastResults);
+
+  } catch(e) {
+    spinner.style.display = 'none';
+    console.error('Geocoding error:', e);
+    // Fallback: manual coordinate entry
+    showDropdown([{
+      display: '⚠️ Search failed. Click here to enter coordinates manually.',
+      isManual: true
+    }]);
+  }
+}
+
+function showDropdown(results) {
+  const dd = document.getElementById('pob-dropdown');
+  dd.innerHTML = '';
+
+  results.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'city-result-item';
+    div.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid #FEF3C7;font-size:13px;transition:background 0.1s;';
+
+    if (r.disabled) {
+      div.style.color = '#94A3B8';
+      div.style.cursor = 'default';
+      div.textContent = r.display;
+    } else if (r.isManual) {
+      div.style.color = '#D97706';
+      div.textContent = r.display;
+      div.onclick = showManualCoords;
+    } else {
+      const flag = getFlagEmoji(r.countryCode);
+      div.innerHTML = `<div style="font-weight:600;color:#1E293B;">${flag} ${r.city || r.display}</div>
+        <div style="font-size:11px;color:#64748B;margin-top:2px;">${r.display} &nbsp;·&nbsp; ${r.lat.toFixed(4)}°N, ${r.lng.toFixed(4)}°E &nbsp;·&nbsp; UTC${r.tz >= 0 ? '+' : ''}${r.tz}</div>`;
+      div.onmouseenter = () => { div.style.background = '#FFF7ED'; };
+      div.onmouseleave = () => { div.style.background = ''; };
+      div.onclick = () => selectCity(r);
+    }
+    dd.appendChild(div);
+  });
+
+  if (results.length > 0) dd.style.display = 'block';
+}
+
+function selectCity(r) {
+  document.getElementById('pob-input').value = r.display;
+  document.getElementById('pob-lat').value   = r.lat;
+  document.getElementById('pob-lng').value   = r.lng;
+  document.getElementById('pob-tz').value    = r.tz;
+  document.getElementById('pob-tick').style.display  = 'inline';
+  document.getElementById('pob-spinner').style.display = 'none';
+
+  // Show confirmed badge
+  const badge = document.getElementById('pob-confirmed');
+  badge.style.display = 'flex';
+  document.getElementById('pob-confirmed-text').textContent =
+    `${r.display}  ·  ${r.lat.toFixed(4)}°N, ${r.lng.toFixed(4)}°E  ·  UTC${r.tz >= 0 ? '+' : ''}${r.tz}`;
+
+  selectedCity = r;
+  closeDropdown();
+}
+
+function clearCity() {
+  document.getElementById('pob-input').value = '';
+  document.getElementById('pob-lat').value   = '';
+  document.getElementById('pob-lng').value   = '';
+  document.getElementById('pob-tz').value    = '5.5';
+  document.getElementById('pob-tick').style.display    = 'none';
+  document.getElementById('pob-confirmed').style.display = 'none';
+  selectedCity = null;
+  closeDropdown();
+  document.getElementById('pob-input').focus();
+}
+
+function closeDropdown() {
+  document.getElementById('pob-dropdown').style.display = 'none';
+  currentHighlight = -1;
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('#pob-input') && !e.target.closest('#pob-dropdown')) {
+    closeDropdown();
+  }
+});
+
+/* ── Manual coordinate entry (fallback) ── */
+function showManualCoords() {
+  closeDropdown();
+  const dd = document.getElementById('pob-dropdown');
+  dd.style.display = 'block';
+  dd.innerHTML = `
+    <div style="padding:14px;">
+      <p style="font-size:12px;color:#92400E;font-weight:600;margin-bottom:8px;">Enter coordinates manually</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+        <div>
+          <label style="font-size:10px;color:#64748B;display:block;margin-bottom:3px;">Latitude (°N)</label>
+          <input id="manual-lat" type="number" step="0.0001" placeholder="e.g. 28.9845"
+            style="width:100%;padding:6px 8px;border:1px solid #D97706;border-radius:8px;font-size:12px;">
+        </div>
+        <div>
+          <label style="font-size:10px;color:#64748B;display:block;margin-bottom:3px;">Longitude (°E)</label>
+          <input id="manual-lng" type="number" step="0.0001" placeholder="e.g. 76.0901"
+            style="width:100%;padding:6px 8px;border:1px solid #D97706;border-radius:8px;font-size:12px;">
+        </div>
+        <div>
+          <label style="font-size:10px;color:#64748B;display:block;margin-bottom:3px;">Timezone (UTC+)</label>
+          <input id="manual-tz" type="number" step="0.5" value="5.5" placeholder="5.5"
+            style="width:100%;padding:6px 8px;border:1px solid #D97706;border-radius:8px;font-size:12px;">
+        </div>
+      </div>
+      <button onclick="applyManualCoords()"
+        style="margin-top:8px;width:100%;background:#92400E;color:white;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;">
+        Use These Coordinates
+      </button>
+      <p style="font-size:10px;color:#94A3B8;margin-top:5px;">
+        Find coordinates at <a href="https://www.latlong.net" target="_blank" style="color:#D97706;">latlong.net</a>
+      </p>
+    </div>`;
+}
+
+function applyManualCoords() {
+  const lat = parseFloat(document.getElementById('manual-lat').value);
+  const lng = parseFloat(document.getElementById('manual-lng').value);
+  const tz  = parseFloat(document.getElementById('manual-tz').value);
+  if (!lat || !lng) { alert('Please enter valid latitude and longitude.'); return; }
+  const cityName = document.getElementById('pob-input').value || `${lat}°N, ${lng}°E`;
+  selectCity({ display: cityName, city: cityName, lat, lng, tz: isNaN(tz) ? 5.5 : tz, countryCode: 'XX' });
+}
+
+/* ── Country flag emoji helper ── */
+function getFlagEmoji(code) {
+  if (!code || code.length !== 2) return '📍';
+  try {
+    return String.fromCodePoint(...[...code.toUpperCase()].map(c => 127397 + c.charCodeAt(0)));
+  } catch { return '📍'; }
+}
+
+/* ── Form error helper ── */
+function showFormError(msg) {
+  const old = document.getElementById('form-error-toast');
+  if (old) old.remove();
+  const t = document.createElement('div');
+  t.id = 'form-error-toast';
+  t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#DC2626;color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:9999;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,0.2);';
+  t.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
 }
 
 /* Property tab styling */
