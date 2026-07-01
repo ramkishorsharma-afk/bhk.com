@@ -73,13 +73,14 @@
   }
   </script>
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- Chart.js FIRST — must load before Tailwind to prevent canvas yellow-line bug -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Chart.js: loaded synchronously so it is ready before DOMContentLoaded -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <!-- Tailwind AFTER Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
   <style>
     :root {
@@ -1214,11 +1215,7 @@ function animateCounters() {
     }, 30);
   });
 }
-const statObserver = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) { animateCounters(); statObserver.disconnect(); } });
-}, { threshold: 0.5 });
-const statSection = document.querySelector('.stat-num');
-if (statSection) statObserver.observe(statSection.closest('section'));
+// statObserver initialised inside DOMContentLoaded — see below
 
 /* ---- EMI Calculator ---- */
 let balChart = null;
@@ -1260,26 +1257,57 @@ function calcEmi() {
   document.getElementById('bar-principal').style.width = pPct + '%';
   document.getElementById('bar-interest').style.width  = (100-pPct) + '%';
 
-  /* Balance chart */
-  const labels = [], data = [];
+  /* Balance chart — outstanding loan reduces from loan amount to 0 */
+  const labels = ['Start'], data = [Math.round(loan)];
   let bal = loan;
   for (let y = 1; y <= yrs; y++) {
-    for (let m = 0; m < 12; m++) { bal = bal*(1+r) - emi; if(bal<0) bal=0; }
-    labels.push('Yr '+y);
+    for (let m = 0; m < 12; m++) {
+      bal = bal * (1 + r) - emi;
+      if (bal < 0) bal = 0;
+    }
+    labels.push('Yr ' + y);
     data.push(Math.round(bal));
   }
-  if (balChart) { try { balChart.destroy(); } catch(e){} } balChart = null;
-  balChart = new Chart(document.getElementById('balanceChart'), {
-    type: 'line',
-    data: { labels, datasets: [{ label:'Outstanding balance', data, borderColor:'#EA580C', backgroundColor:'rgba(234,88,12,0.08)', fill:true, tension:0.35, pointRadius:3, pointBackgroundColor:'#EA580C', borderWidth:2 }] },
-    options: { responsive:true, maintainAspectRatio:false,
-      plugins: { legend:{display:false} },
-      scales: {
-        y: { ticks:{ callback: v => fmtINR(v) }, grid:{ color:'rgba(0,0,0,0.05)' } },
-        x: { ticks:{ autoSkip:true, maxTicksLimit:10 }, grid:{display:false} }
+  if (balChart) { try { balChart.destroy(); } catch(e){} }
+  balChart = null;
+  const balCanvas = document.getElementById('balanceChart');
+  if (balCanvas && typeof Chart !== 'undefined') {
+    balChart = new Chart(balCanvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Outstanding balance',
+          data,
+          borderColor: '#EA580C',
+          backgroundColor: 'rgba(234,88,12,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 2,
+          pointBackgroundColor: '#EA580C',
+          borderWidth: 2.5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 600 },
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            min: 0,
+            max: Math.ceil(loan / 100000) * 100000,
+            ticks: { callback: v => fmtINR(v), maxTicksLimit: 6 },
+            grid: { color: 'rgba(0,0,0,0.04)' }
+          },
+          x: {
+            ticks: { autoSkip: true, maxTicksLimit: 8 },
+            grid: { display: false }
+          }
+        }
       }
-    }
-  });
+    });
+  }
 
   /* Rate compare */
   const rates = [7.5, 8.0, 8.5, 9.0, 9.5];
@@ -1297,12 +1325,13 @@ function calcEmi() {
 }
 
 /* ---- Market Trend Chart ---- */
+let trendChartInst = null;
 function buildTrendChart() {
   const canvas = document.getElementById('trendChart');
-  if (!canvas || canvas._chartInited) return;
-  canvas._chartInited = true;
+  if (!canvas || !window.Chart) return;
+  if (trendChartInst) { try { trendChartInst.destroy(); } catch(e){} trendChartInst = null; }
   const labels = ['Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26'];
-  new Chart(document.getElementById('trendChart'), {
+  trendChartInst = new Chart(canvas, {
     type: 'line',
     data: {
       labels,
@@ -1313,14 +1342,25 @@ function buildTrendChart() {
         { label:'Hyderabad', data:[100,102,105,108,110,111], borderColor:'#BA7517', tension:0.3, pointRadius:4, fill:false, borderWidth:2, borderDash:[8,3] }
       ]
     },
-    options: { responsive:true, maintainAspectRatio:false,
-      plugins: { legend:{display:false} },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 800 },
+      plugins: { legend: { display: false } },
       scales: {
-        y: { ticks:{ callback: v=>v }, grid:{ color:'rgba(0,0,0,0.05)' }, title:{display:true,text:'Index (Jan=100)',font:{size:11}} },
-        x: { grid:{display:false} }
+        y: {
+          min: 98,
+          max: 115,
+          ticks: { callback: v => v, maxTicksLimit: 6 },
+          grid: { color: 'rgba(0,0,0,0.04)' },
+          title: { display: true, text: 'Index (Jan 26 = 100)', font: { size: 10 } }
+        },
+        x: { grid: { display: false } }
       }
     }
   });
+  // mark canvas done
+  canvas._chartInited = true;
 }
 
 /* ---- City price table ---- */
@@ -1337,15 +1377,22 @@ function buildCityTable() {
   ];
   const maxP = Math.max(...cities.map(c=>c.price));
   document.getElementById('city-price-table').innerHTML = cities.map(c => {
-    const sparks = c.spark.map(v=>`<span style="height:${Math.round(v/100*22)}px;"></span>`).join('');
-    return `<div class="flex items-center gap-3">
-      <span class="text-sm font-semibold text-slate-700 w-24 shrink-0">${c.name}</span>
-      <div class="flex-1">
-        <div class="pbar"><div class="pbar-fill bg-orange-400" style="width:${Math.round(c.price/maxP*100)}%"></div></div>
+    const maxS = Math.max(...c.spark);
+    const sparkSvg = '<svg width="48" height="24" viewBox="0 0 48 24" xmlns="http://www.w3.org/2000/svg">'
+      + c.spark.map((v,i) => {
+          const h = Math.round((v/maxS)*20);
+          const x = i * 7;
+          return `<rect x="${x}" y="${24-h}" width="5" height="${h}" rx="1" fill="#EA580C" opacity="0.7"/>`;
+        }).join('')
+      + '</svg>';
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <span style="font-size:13px;font-weight:600;color:#334155;width:90px;flex-shrink:0;">${c.name}</span>
+      <div style="flex:1;height:8px;background:#E2E8F0;border-radius:99px;overflow:hidden;">
+        <div style="height:100%;width:${Math.round(c.price/maxP*100)}%;background:#FB923C;border-radius:99px;"></div>
       </div>
-      <span class="text-sm text-slate-600 w-20 text-right shrink-0">₹${c.price.toLocaleString('en-IN')}/sqft</span>
-      <div class="spark shrink-0">${sparks}</div>
-      <span class="text-xs font-bold w-12 text-right shrink-0 ${c.chg>=5?'text-green-600':'text-slate-500'}">+${c.chg}%</span>
+      <span style="font-size:12px;color:#475569;width:110px;text-align:right;flex-shrink:0;">₹${c.price.toLocaleString('en-IN')}/sqft</span>
+      <div style="flex-shrink:0;">${sparkSvg}</div>
+      <span style="font-size:11px;font-weight:700;width:44px;text-align:right;flex-shrink:0;color:${c.chg>=5?'#16a34a':'#64748b'}">+${c.chg}%</span>
     </div>`;
   }).join('');
 }
@@ -1510,17 +1557,37 @@ function loadMoreListings() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  // Ensure Chart.js is available before calling chart functions
+
+  /* ---- Stat counter observer (must be inside DOMContentLoaded) ---- */
+  const statSection = document.querySelector('.stat-num');
+  if (statSection) {
+    const statObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animateCounters();
+          statObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+    statObserver.observe(statSection.closest('section'));
+  }
+
+  /* ---- Charts — poll until Chart.js is ready ---- */
   function initCharts() {
     if (typeof Chart === 'undefined') {
-      setTimeout(initCharts, 100);
+      setTimeout(initCharts, 80);
       return;
     }
+    // Register Chart.js defaults to prevent yellow fill bug
+    Chart.defaults.color = '#64748B';
+    Chart.defaults.borderColor = 'rgba(0,0,0,0.06)';
     calcEmi();
     buildTrendChart();
     buildCityTable();
   }
   initCharts();
+
+  /* ---- Load listings ---- */
   loadListings('all');
 });
 </script>
