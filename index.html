@@ -80,7 +80,7 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Tailwind AFTER Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     :root {
@@ -1205,14 +1205,21 @@ function toggleFaq(btn) {
 /* ---- Stat counter animation ---- */
 function animateCounters() {
   document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+    if (el.dataset.animated) return; // don't re-animate
+    el.dataset.animated = '1';
     const target = +el.dataset.target;
+    const duration = 1500; // ms
+    const steps = 50;
+    const interval = duration / steps;
     let cur = 0;
-    const step = Math.ceil(target / 40);
     const timer = setInterval(() => {
-      cur = Math.min(cur + step, target);
-      el.textContent = cur.toLocaleString('en-IN');
-      if (cur >= target) clearInterval(timer);
-    }, 30);
+      cur += target / steps;
+      if (cur >= target) {
+        cur = target;
+        clearInterval(timer);
+      }
+      el.textContent = Math.round(cur).toLocaleString('en-IN');
+    }, interval);
   });
 }
 // statObserver initialised inside DOMContentLoaded — see below
@@ -1561,6 +1568,7 @@ window.addEventListener('DOMContentLoaded', () => {
   /* ---- Stat counter observer (must be inside DOMContentLoaded) ---- */
   const statSection = document.querySelector('.stat-num');
   if (statSection) {
+    const statEl = statSection.closest('section') || statSection;
     const statObserver = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting) {
@@ -1568,8 +1576,8 @@ window.addEventListener('DOMContentLoaded', () => {
           statObserver.disconnect();
         }
       });
-    }, { threshold: 0.3 });
-    statObserver.observe(statSection.closest('section'));
+    }, { threshold: 0.05, rootMargin: '0px 0px -50px 0px' });
+    statObserver.observe(statEl);
   }
 
   /* ---- Charts — poll until Chart.js is ready ---- */
